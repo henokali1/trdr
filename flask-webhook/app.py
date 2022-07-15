@@ -130,7 +130,8 @@ def get_stats():
 def webhook():
     pnl = 0
     # print(request.json['bs'])
-    price = get_price('BTC')
+    asset = request.json['asset']
+    price = get_price(asset)
     local_time = get_local_time()
     ts = int(time())
     pos = request.json['type']
@@ -154,7 +155,7 @@ def webhook():
                 pnl = round((entry_price*100/price)-100.0, 2)
             except:
                 pnl = 0
-        data = f'{local_time},{pos},{price},{ts},{pnl}\n'
+        data = f'{local_time},{pos},{asset},{price},{ts},{pnl}\n'
         update_csv(fn, data)
     
     

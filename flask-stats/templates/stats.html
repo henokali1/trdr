@@ -9,7 +9,7 @@
         color: rgb(56,139,253);
         }
     </style>
-    <title>{{avg_c_pnl}}% / {{days}}D - Stats</title>
+    <title>{{avg_c_pnl}}% - Stats</title>
     <style>
       table {
         margin: 30px;
@@ -43,7 +43,7 @@
 <body style="background-color:rgb(48,54,61);">
   <br><br>
   
-    <span style="margin: 30px;"><strong>{{avg_c_pnl}}%(avg) in {{days}} days</strong></span>
+    <span style="margin: 30px;"><strong>{{avg_c_pnl}}%(avg)</strong></span>
 <table>
   <tr>
     <th>PnL-C</th>
@@ -60,6 +60,6 @@
   </tr>
   {% endfor %}
 </table>
-<a style="margin: 30px;" href="/vmc_log">VMC</a>
+<!-- <a style="margin: 30px;" href="/vmc_log">VMC</a> -->
 </body>
 </html>

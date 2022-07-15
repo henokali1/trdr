@@ -107,13 +107,7 @@ def get_stats():
         s = fn.replace('/home/henokali1/trdr/flask-webhook/logs/', '')
         strategy = s.replace('.csv', '')
         r.append({'strategy': strategy, 'c_PnL': f'{compounded_pnl}%', 'PTP': f'{profitable_trades_pct}%'})
-    # --------------------------------------------------------------- VMC ----------------------------------------------------------------
-    vmc_pnls = get_vmc_pnls()
-    vmc_compounded_pnl = calc_compounded_pnl(vmc_pnls)
-    c_pnls.append(vmc_compounded_pnl)
-    vmc_profitable_trades_pct = prof_pct(vmc_pnls)
-    r.append({'strategy': 'VMC_MHD', 'c_PnL': f'{vmc_compounded_pnl}%', 'PTP': f'{vmc_profitable_trades_pct}%'})
-    # --------------------------------------------------------------- VMC ----------------------------------------------------------------
+   
     avg_c_pnl = get_avg_c_pnl(c_pnls)    
     return r,avg_c_pnl
 
