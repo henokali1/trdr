@@ -6,6 +6,7 @@ import time
 import ccxt
 from binance.client import Client
 import datetime
+from datetime import datetime
 import os.path 
 from finta import TA
 import datetime as dt
@@ -27,10 +28,6 @@ def get_client():
     return Client(k['API_KEY'], k['API_SECRET'])
 
 def get_historical_data(client, coin_pair, start_ts, end_ts):
-    # valid intervals - 1m, 3m, 5m, 15m, 30m, 1h, 2h, 4h, 6h, 8h, 12h, 1d, 3d, 1w, 1M
-    # 1h = KLINE_INTERVAL_1HOUR 
-    # 30m = KLINE_INTERVAL_30MINUTE
-    # returns OHLCV
     return client.get_historical_klines(coin_pair, Client.KLINE_INTERVAL_1HOUR, start_ts, end_ts)
 
 def get_btc_24hr_price_change_percent():
@@ -50,7 +47,7 @@ def get_signal():
     end_ts = int(time.time())*1000
     start_ts = end_ts - 2591999000
     for idx, pair in enumerate(pairs_list):
-        print(f'{idx}: working on {pair}')
+        print(f'\r{idx}: working on {pair}            ', end="")
         d = get_historical_data(client, pair, start_ts, end_ts)
         df = pd.DataFrame(d)
         df.columns = ['unix_ts', 'open', 'high', 'low', 'close', 'Volume', 'close time', 'Quote asset' 'volume', 'Number of trades', 'Taker buy base asset volume', 'Taker buy quote asset volume', 'Ignore']
@@ -70,9 +67,9 @@ def get_signal():
         df['signal']=np.where(df['crossing_up'] , 'long', (np.where(df['crossing_down'], 'short', 'no_sig')))
         sig = list(df['signal'])[-1]
         if (btc_24hr_pc > LONG_ENTRY_THRESHOLD) and (sig == 'long'):
-            return {'asset': pair[:-4], 'pos': 'el'}
-        if (btc_24hr_pc < SHORT_ENTRY_THRESHOLD) and (sig == 'short'):
-            return {'asset': pair[:-4], 'pos': 'es'}
+            return {"asset": pair[:-4], "pos": "el"}
+        if (btc_24hr_pc < SHORT_ENTRY_THRESHOLD) and (sig == "short"):
+            return {"asset": pair[:-4], "pos": "es"}
     return None
 
 def send_alert(asset, pos):
@@ -81,6 +78,18 @@ def send_alert(asset, pos):
     r = requests.post(url, json=alert)
     print('r', r)
     print('status', r.status_code)
+
+def get_entry_price():
+    df = pd.read_csv('/home/henokali1/trdr/flask-webhook/logs/VMC_HK.csv')
+    return float(list(df['price'])[-1])
+
+def get_price(coin):
+    coin = f'{coin}USDT'
+    all_prices = client.get_all_tickers()
+    for pair in all_prices:
+        if pair['symbol'] == coin:
+            return float(pair['price'])
+    return None
 
 # CONSTANTS
 pairs_list = ['SOLUSDT', 'BNBUSDT', 'ADAUSDT', 'XRPUSDT', 'DOGEUSDT', 'TRXUSDT', 'LTCUSDT', 'APEUSDT', 'AVAXUSDT', 'LINKUSDT', 'LITUSDT', 'GMTUSDT', 'DOTUSDT', 'FTMUSDT', 'GALAUSDT', 'SHIBUSDT', 'NEARUSDT', 'MATICUSDT', 'PEOPLEUSDT', 'SANDUSDT', 'MANAUSDT', 'VETUSDT', 'ATOMUSDT', 'LUNAUSDT', 'WAVESUSDT', 'JASMYUSDT', 'ENSUSDT', 'BCHUSDT', 'EGLDUSDT', 'RUNEUSDT', 'ETCUSDT', 'ZILUSDT', 'UNFIUSDT', 'FILUSDT', 'ALICEUSDT', 'AAVEUSDT', 'OPUSDT', 'ALGOUSDT', 'OGNUSDT', 'EOSUSDT', 'XLMUSDT', 'ICPUSDT', 'THETAUSDT', 'AXSUSDT', 'XMRUSDT', 'HNTUSDT', 'WOOUSDT', 'UNIUSDT', 'CHZUSDT', 'ROSEUSDT', 'SRMUSDT', 'TFUELUSDT', 'GALUSDT', 'STORJUSDT', 'FTTUSDT', 'ZECUSDT', 'ANCUSDT', 'LRCUSDT', 'API3USDT', 'BATUSDT', 'TWTUSDT', 'CAKEUSDT', 'BELUSDT', 'DYDXUSDT', 'GRTUSDT', 'RSRUSDT', 'FLMUSDT', 'CRVUSDT', 'ONEUSDT', 'BLZUSDT', 'QNTUSDT', 'POLSUSDT', 'XTZUSDT', 'JSTUSDT', 'GLMRUSDT', 'SUSHIUSDT', 'IMXUSDT', 'MASKUSDT', 'ARUSDT', 'NEOUSDT', 'SLPUSDT', 'CHRUSDT', 'ANTUSDT', 'DARUSDT', 'BNXUSDT', 'BTTCUSDT', 'WINUSDT', 'ONTUSDT', 'CELOUSDT', 'KNCUSDT', 'HBARUSDT', 'ENJUSDT', 'HOTUSDT', 'BAKEUSDT', 'IOTXUSDT', 'KDAUSDT', 'PONDUSDT', 'CITYUSDT', 'DUSKUSDT', 'IOTAUSDT', 'IOSTUSDT', 'DASHUSDT', 'MINAUSDT', 'SFPUSDT', 'MBLUSDT', 'SUNUSDT', 'TOMOUSDT', 'RVNUSDT', 'COMPUSDT', 'KLAYUSDT', 'GTCUSDT', 'MKRUSDT', 'SXPUSDT', 'QTUMUSDT', 'FETUSDT', 'KAVAUSDT', 'DENTUSDT', 'TCTUSDT', 'OMGUSDT', 'ATAUSDT', 'YFIUSDT', 'CELRUSDT', 'ANKRUSDT', 'FLOWUSDT', 'ZRXUSDT', 'LINAUSDT', 'LOKAUSDT', 'CTKUSDT', 'TLMUSDT', 'KP3RUSDT', 'COTIUSDT', 'C98USDT', 'KSMUSDT', 'AUDIOUSDT', 'ASTRUSDT', 'ZENUSDT', 'YFIIUSDT', 'WINGUSDT', 'POWRUSDT', 'CVXUSDT', 'QIUSDT', 'SPELLUSDT', 'UMAUSDT', 'OCEANUSDT', '1INCHUSDT', 'DODOUSDT', 'SNXUSDT', 'RENUSDT', 'NKNUSDT', 'REEFUSDT', 'BICOUSDT', 'BSWUSDT', 'BURGERUSDT', 'CTSIUSDT', 'BETAUSDT', 'PYRUSDT', 'MTLUSDT', 'ASRUSDT', 'PERPUSDT', 'TRBUSDT', 'STMXUSDT', 'ALPINEUSDT', 'MBOXUSDT', 'MOVRUSDT', 'BNTUSDT', 'XECUSDT', 'LDOUSDT', 'CTXCUSDT', 'RLCUSDT', 'BANDUSDT', 'IDEXUSDT', 'ARPAUSDT', 'YGGUSDT', 'POLYUSDT', 'ICXUSDT', 'EPXUSDT', 'SANTOSUSDT', 'AVAUSDT', 'RNDRUSDT', 'MIRUSDT', 'SKLUSDT', 'REPUSDT', 'ADXUSDT', 'OGUSDT', 'TROYUSDT', 'NEXOUSDT', 'TUSDT', 'NULSUSDT', 'SYSUSDT', 'AGLDUSDT', 'INJUSDT', 'VOXELUSDT', 'COCOSUSDT', 'WAXPUSDT', 'ACAUSDT', 'STXUSDT', 'LAZIOUSDT', 'DGBUSDT', 'XVSUSDT', 'SCRTUSDT', 'LPTUSDT', 'WRXUSDT', 'ILVUSDT', 'HIVEUSDT', 'RAYUSDT', 'PSGUSDT', 'CKBUSDT', 'CVCUSDT', 'BARUSDT', 'ELFUSDT', 'CFXUSDT', 'ALPHAUSDT', 'REQUSDT', 'COSUSDT', 'SCUSDT', 'FISUSDT', 'STPTUSDT', 'KEYUSDT', 'AUTOUSDT', 'PORTOUSDT', 'PLAUSDT', 'XNOUSDT', 'SUPERUSDT', 'QUICKUSDT', 'GTOUSDT', 'BIFIUSDT', 'ALCXUSDT', 'AKROUSDT', 'DIAUSDT', 'VGXUSDT', 'ORNUSDT', 'ATMUSDT', 'WNXMUSDT', 'XEMUSDT', 'FLUXUSDT', 'TORNUSDT', 'STRAXUSDT', 'FORUSDT', 'ACHUSDT', 'MITHUSDT', 'ALPACAUSDT', 'DREPUSDT', 'TRIBEUSDT', 'OOKIUSDT', 'XVGUSDT', 'ACMUSDT', 'MFTUSDT', 'STEEMUSDT', 'MULTIUSDT', 'RAMPUSDT', 'HIGHUSDT', 'UTKUSDT', 'BALUSDT', 'MDTUSDT', 'FARMUSDT', 'JUVUSDT', 'BTSUSDT', 'PUNDIXUSDT', 'DEGOUSDT', 'BTCSTUSDT', 'OXTUSDT', 'CLVUSDT', 'ERNUSDT', 'BTGUSDT', 'BEAMUSDT', 'TKOUSDT', 'MCUSDT', 'LTOUSDT', 'ONGUSDT', 'FORTHUSDT', 'RIFUSDT', 'RAREUSDT', 'DATAUSDT', 'MLNUSDT', 'TRUUSDT', 'FRONTUSDT', 'MDXUSDT', 'VIDTUSDT', 'REIUSDT', 'JOEUSDT', 'GNOUSDT', 'AMPUSDT', 'TVKUSDT', 'BADGERUSDT', 'CHESSUSDT', 'FIDAUSDT', 'VTHOUSDT', 'AUCTIONUSDT', 'WTCUSDT', 'AUCTIONUSDT', 'DOCKUSDT', 'DFUSDT', 'FIOUSDT', 'FIROUSDT', 'DNTUSDT', 'OMUSDT', 'MOBUSDT', 'LSKUSDT', 'WANUSDT', 'RADUSDT', 'PNTUSDT', 'NBSUSDT', 'BONDUSDT', 'AIONUSDT', 'PHAUSDT', 'GHSTUSDT', 'IRISUSDT', 'FUNUSDT', 'CVPUSDT', 'DEXEUSDT', 'KMDUSDT', 'PERLUSDT', 'NMRUSDT', 'VITEUSDT', 'DCRUSDT', 'ARDRUSDT', 'GBPUSDT', 'FXSUSDT', 'EURUSDT', 'AUDUSDT']
@@ -91,28 +100,60 @@ for pair in blacklist:
         pairs_list.remove(pair)
 
 
-print(f'Tracking {len(pairs_list)} Coins, {len(blacklist)} Blacklisted Coins')
-
-
+client = get_client()
 OFFSET_30d = 2591999000
 OFFSET_24HR = 86400000
 OFFSET_1MIN = 60000
 UTC_OFFSET = 14400
 WT_OVERBOUGHT=35
 WT_OVERSOLD=-35
+TAKE_PROFIT_PERCENT = 1.0
+STOP_LOSS_PERCENT = 4.0
 LONG_ENTRY_THRESHOLD = 0.0
 SHORT_ENTRY_THRESHOLD = 0.0
+REQ_MIN = [0]
+REQ_SEC = [1]
+MODE = 'GET_SIG'
 
+print('MODE:', MODE)
+while 1:
+    if MODE == 'GET_SIG':
+        ts = (time.time())
+        mnt = int(datetime.utcfromtimestamp(ts).strftime('%M'))
+        sec = int(datetime.utcfromtimestamp(ts).strftime('%S'))
+        if (mnt in REQ_MIN) and (sec in REQ_SEC):
+            print(f'Tracking {len(pairs_list)} Coins, {len(blacklist)} Blacklisted Coins')
+            sig = get_signal()
+            print(sig)
+            # sig = {"asset": "SOL", "pos": "es"}
+            if sig != None:
+                asset = sig['asset']
+                pos = sig['pos']
+                send_alert(asset, pos)
+                entry_price = get_entry_price()
+                if pos == "el":
+                    take_profit = entry_price*(1+(TAKE_PROFIT_PERCENT/100))
+                    stop_loss = entry_price*(1-(STOP_LOSS_PERCENT/100))
+                    print(f'entry_price: {entry_price}, long_take_profit: {take_profit}, long_stop_loss: {stop_loss}')
+                if pos == "es":
+                    take_profit = entry_price*(1-(TAKE_PROFIT_PERCENT/100))
+                    stop_loss = entry_price*(1+(STOP_LOSS_PERCENT/100))
+                    print(f'entry_price: {entry_price}, short_take_profit: {take_profit}, short_stop_loss: {stop_loss}')
+                MODE = 'MONITOR_POS'
+    if MODE == 'MONITOR_POS':
+        current_price = get_price(asset)
+        print(f'\rcurrent price of {asset}: {current_price}            ', end="")
+        if (pos == "el") and ((current_price >= take_profit) or (current_price <= stop_loss)):
+            send_alert(asset, "xl")
+            MODE = 'GET_SIG'
+        if (pos == "es") and ((current_price >= stop_loss) or (current_price <= take_profit)):
+            send_alert(asset, "xs")
+            MODE = 'GET_SIG'
+        time.sleep(1)
+        
+        # print('MODE:', MODE)
+        # break
 
-
-
-client = get_client() 
-sig = get_signal()
-print(sig)
-if sig != None:
-    asset = sig['asset']
-    pos = sig['pos']
-    send_alert(asset, pos)
 
 # asset = 'BEAM'
 # pos = 'xl'
