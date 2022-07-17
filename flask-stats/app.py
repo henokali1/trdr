@@ -74,8 +74,9 @@ def prof_pct(pnls):
     except:
         return 0
 
-def get_days_cnt():
-    start_date_ts = 1653788703
+def get_days_cnt(s):
+    trade_logs = get_trade_logs(s)
+    start_date_ts = int(list(trade_logs['ts'])[0])
     one_day_secs = 86400
     current_date_ts = int(time())
     days = int((current_date_ts - start_date_ts) / one_day_secs)
@@ -83,14 +84,6 @@ def get_days_cnt():
 
 def get_avg_c_pnl(c_pnls):
     return round(sum(c_pnls)/len(c_pnls),1)
-
-def get_vmc_pnls():
-    vmc_pnls_raw = list(pd.read_csv('/home/henokali1/trdr/vmc/log.csv')['Profit'])
-    vmc_pnls = []
-    for i in vmc_pnls_raw:
-        if i != 'NAN':
-            vmc_pnls.append(float(i))
-    return vmc_pnls
 
 def get_stats():
     logs_path='/home/henokali1/trdr/flask-webhook/logs'
@@ -126,8 +119,7 @@ def downloadFile():
 @app.route('/s')
 def stats():
     stats,avg_c_pnl = get_stats()
-    days = get_days_cnt()
-    return render_template('stats.html', stats=stats, days=days, avg_c_pnl=avg_c_pnl)
+    return render_template('stats.html', stats=stats, avg_c_pnl=avg_c_pnl)
 
 @app.route('/trade_log')
 def trade_log():
@@ -137,20 +129,9 @@ def trade_log():
     pnls = list(log['PnL'])
     compounded_pnl = calc_compounded_pnl(pnls)
     profitable_trades_pct = prof_pct(pnls)
-    return render_template('logs.html', strat=s.replace('_', ' '), tables=[log.to_html()], titles=[''], compounded_pnl=compounded_pnl, profitable_trades_pct=profitable_trades_pct, pnls=pnls)
-
-@app.route('/vmc_log')
-def vmc_log():
-    logs_path = '/home/henokali1/trdr/vmc/log.csv'
-    log = pd.read_csv(logs_path).iloc[::-1]
-    # log=pd.DataFrame(df).iloc[::-1]
-    return render_template('vmc-logs.html', tables=[log.to_html()], titles=[''])
-
-@app.route('/vmc_dl')
-def vmc_dl():
-    fn=f'/home/henokali1/trdr/vmc/log.csv'
-    return send_file(fn, as_attachment=True)
-
+    n_days = get_days_cnt(s)
+    pnl_to_day_ratio = compounded_pnl if n_days == 0 else round(compounded_pnl/n_days, 1)
+    return render_template('logs.html', strat=s.replace('_', ' '), tables=[log.to_html()], titles=[''], compounded_pnl=compounded_pnl, profitable_trades_pct=profitable_trades_pct, pnls=pnls, n_days=n_days, pnl_to_day_ratio=pnl_to_day_ratio)
 
 if __name__=="__main__":
     app.run(debug=True, host='0.0.0.0', port=9999)
