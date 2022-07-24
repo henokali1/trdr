@@ -126,6 +126,24 @@ def get_stats():
         r.append({'strategy': strategy, 'c_PnL': f'{compounded_pnl}%', 'PTP': f'{profitable_trades_pct}%'})
     return r
 
+
+def get_btc_24hr_price_change_percent():
+    OFFSET_1MIN = 60000
+    OFFSET_24HR = 86400000
+    try:
+        ts = int(time())*1000
+        cur_start = ts - OFFSET_1MIN
+        cur_end = ts
+        yest_start = ts - OFFSET_24HR - OFFSET_1MIN
+        yest_end = ts - OFFSET_24HR
+        openPrice = float(client.get_historical_klines('BTCUSDT', Client.KLINE_INTERVAL_1MINUTE, str(yest_start), str(yest_end))[0][1])
+        lastPrice = float(client.get_historical_klines('BTCUSDT', Client.KLINE_INTERVAL_1MINUTE, str(cur_start), str(cur_end))[0][1])
+        priceChangePercent = (lastPrice - openPrice )/(openPrice)*100
+        return round(priceChangePercent, 2)
+    except:
+        return 0.0
+
+
 @app.route('/webhook', methods=['POST']) 
 def webhook():
     pnl = 0
@@ -137,6 +155,7 @@ def webhook():
     pos = request.json['type']
     strat_id = request.json['strat_id']
     last_pos = get_last_pos(strat_id)
+    btc_24hr_pc = get_btc_24hr_price_change_percent()
     if last_pos != pos:
         fn = f'logs/{strat_id}.csv'
         if (last_pos == 'es' and pos == 'xl') or (last_pos == 'el' and pos == 'xs'):
@@ -155,7 +174,7 @@ def webhook():
                 pnl = round((entry_price*100/price)-100.0, 2)
             except:
                 pnl = 0
-        data = f'{local_time},{pos},{asset},{price},{ts},{pnl}\n'
+        data = f'{local_time},{pos},{asset},{price},{ts},{btc_24hr_pc},{pnl}\n'
         update_csv(fn, data)
     
     

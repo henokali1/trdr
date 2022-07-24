@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd 
 
 import time
-import ccxt
 from binance.client import Client
 import datetime
 from datetime import datetime
@@ -31,15 +30,19 @@ def get_historical_data(client, coin_pair, start_ts, end_ts):
     return client.get_historical_klines(coin_pair, Client.KLINE_INTERVAL_1HOUR, start_ts, end_ts)
 
 def get_btc_24hr_price_change_percent():
-    ts = int(time.time())*1000
-    cur_start = ts - OFFSET_1MIN
-    cur_end = ts
-    yest_start = ts - OFFSET_24HR - OFFSET_1MIN
-    yest_end = ts - OFFSET_24HR
-    openPrice = float(client.get_historical_klines('BTCUSDT', Client.KLINE_INTERVAL_1MINUTE, str(yest_start), str(yest_end))[0][1])
-    lastPrice = float(client.get_historical_klines('BTCUSDT', Client.KLINE_INTERVAL_1MINUTE, str(cur_start), str(cur_end))[0][1])
-    priceChangePercent = (lastPrice - openPrice )/(openPrice)*100
-    return round(priceChangePercent, 2)
+    try:
+        ts = int(time.time())*1000
+        cur_start = ts - OFFSET_1MIN
+        cur_end = ts
+        yest_start = ts - OFFSET_24HR - OFFSET_1MIN
+        yest_end = ts - OFFSET_24HR
+        openPrice = float(client.get_historical_klines('BTCUSDT', Client.KLINE_INTERVAL_1MINUTE, str(yest_start), str(yest_end))[0][1])
+        lastPrice = float(client.get_historical_klines('BTCUSDT', Client.KLINE_INTERVAL_1MINUTE, str(cur_start), str(cur_end))[0][1])
+        priceChangePercent = (lastPrice - openPrice )/(openPrice)*100
+        return round(priceChangePercent, 2)
+    except:
+        return 0.0
+
 
 def get_signal():
     btc_24hr_pc = get_btc_24hr_price_change_percent()
@@ -108,7 +111,7 @@ UTC_OFFSET = 14400
 WT_OVERBOUGHT=35
 WT_OVERSOLD=-35
 TAKE_PROFIT_PERCENT = 1.0
-STOP_LOSS_PERCENT = 4.0
+STOP_LOSS_PERCENT = 2.0
 LONG_ENTRY_THRESHOLD = 0.0
 SHORT_ENTRY_THRESHOLD = 0.0
 REQ_MIN = [0]
@@ -142,7 +145,11 @@ while 1:
                 MODE = 'MONITOR_POS'
     if MODE == 'MONITOR_POS':
         current_price = get_price(asset)
-        print(f'\rcurrent price of {asset}: {current_price}            ', end="")
+        if (pos == "el"):
+            cur_pnl = round((current_price*100/entry_price)-100.0, 2)
+        if (pos == "es"):
+        	cur_pnl = round((entry_price*100/current_price)-100.0, 2)
+        print(f'\rcurrent PnL: {cur_pnl}%\tcurrent price of {asset}: {current_price}'+' '*80, end="")
         if (pos == "el") and ((current_price >= take_profit) or (current_price <= stop_loss)):
             send_alert(asset, "xl")
             MODE = 'GET_SIG'
