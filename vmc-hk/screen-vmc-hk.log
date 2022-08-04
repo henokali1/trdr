@@ -1,4 +1,0 @@
-henokali1@green-gcp:~/trdr/vmc-hk$ ls
-screen-vmc-hk.log  vmc-hk.py
-henokali1@green-gcp:~/trdr/vmc-hk$ sudop[K python3 vmc-hk.py 
-MODE: GET_SIG

@@ -149,7 +149,7 @@ while 1:
             cur_pnl = round((current_price*100/entry_price)-100.0, 2)
         if (pos == "es"):
         	cur_pnl = round((entry_price*100/current_price)-100.0, 2)
-        print(f'\rcurrent PnL: {cur_pnl}%\tcurrent price of {asset}: {current_price}'+' '*80, end="")
+        print(f'\rcurrent PnL: {cur_pnl}%\tcurrent price of {asset}: {current_price}'+'\t\t', end="")
         if (pos == "el") and ((current_price >= take_profit) or (current_price <= stop_loss)):
             send_alert(asset, "xl")
             MODE = 'GET_SIG'
