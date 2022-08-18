@@ -1,5 +1,5 @@
 import pandas as pd 
-
+import numpy as np
 import time
 from binance.client import Client
 import datetime
@@ -10,6 +10,12 @@ import pickle
 import requests
 
 
+
+def get_local_time():
+    UTC_OFFSET = 14400
+    ts = int(time.time())
+    lt = datetime.utcfromtimestamp(ts+UTC_OFFSET).strftime('%d-%m-%Y %H:%M:%S')
+    return lt
 
 def read_pickle_file(fn):
     with open(fn, 'rb') as handle:
@@ -24,7 +30,8 @@ def get_client():
     return Client(k['API_KEY'], k['API_SECRET'])
 
 def get_historical_data(client, coin_pair, start_ts, end_ts):
-    return client.get_historical_klines(coin_pair, Client.KLINE_INTERVAL_1HOUR, start_ts, end_ts)
+    return client.get_historical_klines(coin_pair, Client.KLINE_INTERVAL_5MINUTE, start_ts, end_ts)
+    # return client.get_historical_klines(coin_pair, Client.KLINE_INTERVAL_1HOUR, start_ts, end_ts)
 
 def get_btc_24hr_price_change_percent():
     try:
@@ -47,7 +54,8 @@ def get_signal():
     end_ts = int(time.time())*1000
     start_ts = end_ts - 2591999000
     for idx, pair in enumerate(pairs_list):
-        print(f'\r{idx}: working on {pair}            ', end="")
+        tm = datetime.utcfromtimestamp(int(time.time())+UTC_OFFSET).strftime('%d-%m-%Y %H:%M:%S')
+        print(f'\r{idx}: {tm} working on {pair}            ', end="")
         d = get_historical_data(client, pair, start_ts, end_ts)
         df = pd.DataFrame(d)
         df.columns = ['unix_ts', 'open', 'high', 'low', 'close', 'Volume', 'close time', 'Quote asset' 'volume', 'Number of trades', 'Taker buy base asset volume', 'Taker buy quote asset volume', 'Ignore']
@@ -66,6 +74,8 @@ def get_signal():
         df['crossing_up'] = (df['wt1'] >= df['wt2']) & (df['previous_wt1'] <= df['previous_wt2']) & (df['wt2'] <= WT_OVERSOLD )
         df['signal']=np.where(df['crossing_up'] , 'long', (np.where(df['crossing_down'], 'short', 'no_sig')))
         sig = list(df['signal'])[-1]
+        lt = get_local_time()
+        # df.to_csv(f'df-logs/BTC-5m-{lt}.csv', sep=',', index=False)
         if (sig == 'long'):
             return {"asset": pair[:-4], "pos": "el"}
         if (sig == "short"):
@@ -74,7 +84,7 @@ def get_signal():
 
 def send_alert(asset, pos):
     url = 'http://localhost/webhook'
-    alert = {"type": pos, "strat_id": "V2_VMC_HK", "asset": asset}
+    alert = {"type": pos, "strat_id": "V2_VMC_HK_5min", "asset": asset}
     r = requests.post(url, json=alert)
     print('r', r)
     print('status', r.status_code)
@@ -97,10 +107,11 @@ for pair in blacklist:
 
 
 client = get_client()
+UTC_OFFSET = 14400
 OFFSET_24HR = 86400000
 OFFSET_1MIN = 60000
-WT_OVERBOUGHT=-92
-WT_OVERSOLD=130
+WT_OVERBOUGHT=-104
+WT_OVERSOLD=115
 REQ_MIN = [0]
 REQ_SEC = [1]
 MODE = 'GET_SIG'
@@ -112,7 +123,7 @@ while 1:
         ts = (time.time())
         mnt = int(datetime.utcfromtimestamp(ts).strftime('%M'))
         sec = int(datetime.utcfromtimestamp(ts).strftime('%S'))
-        if (mnt in REQ_MIN) and (sec in REQ_SEC):
+        if (mnt%5 == 0) and (sec in REQ_SEC):
             print(f'Tracking {len(pairs_list)} Coins, {len(blacklist)} Blacklisted Coins')
             sig = get_signal()
             print(sig)

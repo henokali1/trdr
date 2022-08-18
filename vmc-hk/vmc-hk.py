@@ -50,9 +50,11 @@ def get_signal():
     end_ts = int(time.time())*1000
     start_ts = end_ts - 2591999000
     for idx, pair in enumerate(pairs_list):
-        print(f'\r{idx}: working on {pair}            ', end="")
+        tm = datetime.utcfromtimestamp(int(time.time())).strftime('%d-%m-%Y %H:%M:%S')
+        print(f'\r{idx}: {tm} working on {pair}            ', end="")
         d = get_historical_data(client, pair, start_ts, end_ts)
         df = pd.DataFrame(d)
+        print(df)
         df.columns = ['unix_ts', 'open', 'high', 'low', 'close', 'Volume', 'close time', 'Quote asset' 'volume', 'Number of trades', 'Taker buy base asset volume', 'Taker buy quote asset volume', 'Ignore']
 
         df['open'] = pd.to_numeric(df['open'], errors='coerce')
@@ -114,7 +116,7 @@ TAKE_PROFIT_PERCENT = 1.0
 STOP_LOSS_PERCENT = 2.0
 LONG_ENTRY_THRESHOLD = 0.0
 SHORT_ENTRY_THRESHOLD = 0.0
-REQ_MIN = [0]
+REQ_MIN = [0,59]
 REQ_SEC = [1]
 MODE = 'GET_SIG'
 
@@ -148,7 +150,7 @@ while 1:
         if (pos == "el"):
             cur_pnl = round((current_price*100/entry_price)-100.0, 2)
         if (pos == "es"):
-        	cur_pnl = round((entry_price*100/current_price)-100.0, 2)
+            cur_pnl = round((entry_price*100/current_price)-100.0, 2)
         print(f'\rcurrent PnL: {cur_pnl}%\tcurrent price of {asset}: {current_price}'+'\t\t', end="")
         if (pos == "el") and ((current_price >= take_profit) or (current_price <= stop_loss)):
             send_alert(asset, "xl")
@@ -157,7 +159,7 @@ while 1:
             send_alert(asset, "xs")
             MODE = 'GET_SIG'
         time.sleep(1)
-        
+
         # print('MODE:', MODE)
         # break
 
