@@ -38,25 +38,34 @@
           height: 100%;
           margin: 0;
         }
+
+        .footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+    }
     </style>
 </head>
 <body style="background-color:rgb(48,54,61);">
-<table>
+<table class="footer">
   <tr>
     <th>PnL-C</th>
+    <th>PnL/Day</th>
+    <th>Win/Loss Ratio</th>
     <th>Win Rate</th>
     <th>Strategy</th>
     <th>Download</th>
   </tr>
   {% for stat in stats %}
   <tr>
-    <td><a href="trade_log?strat={{stat.strategy}}">{{stat.c_PnL}}</a></td>
-    <td><a href="trade_log?strat={{stat.strategy}}">{{stat.PTP}}</a></td>
-    <td><a href="trade_log?strat={{stat.strategy}}">{{stat.strategy}}</a></td>
+    <td><a href="frmtd_log?strat={{stat.strategy}}">{{stat.c_PnL}}</a></td>
+    <td><a href="frmtd_log?strat={{stat.strategy}}">{{stat.pnl_to_day_ratio}}</a></td>
+    <td><a href="frmtd_log?strat={{stat.strategy}}">{{stat.win_to_loss_ratio}}</a></td>
+    <td><a href="frmtd_log?strat={{stat.strategy}}">{{stat.PTP}}</a></td>
+    <td><a href="frmtd_log?strat={{stat.strategy}}">{{stat.strategy}}</a></td>
     <td><a href="d?strat={{stat.strategy}}">CSV</a></td>
   </tr>
   {% endfor %}
 </table>
-<!-- <a style="margin: 30px;" href="/vmc_log">VMC</a> -->
 </body>
 </html>

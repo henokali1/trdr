@@ -90,6 +90,7 @@ def get_stats():
     fns = [f'{logs_path}/{f}' for f in listdir(logs_path) if isfile(join(logs_path, f))]
     c_pnls = []
     r = []
+    win_to_loss_ratios = []
     for fn in fns:
         print(fn)
         df = pd.read_csv(fn)
@@ -99,7 +100,9 @@ def get_stats():
         profitable_trades_pct = prof_pct(pnls)
         s = fn.replace('/home/henokali1/trdr/flask-webhook/logs/', '')
         strategy = s.replace('.csv', '')
-        r.append({'strategy': strategy, 'c_PnL': f'{compounded_pnl}%', 'PTP': f'{profitable_trades_pct}%'})
+        n_days = get_days_cnt(strategy)
+        pnl_to_day_ratio = compounded_pnl if n_days == 0 else round(compounded_pnl/n_days, 1)
+        r.append({'strategy': strategy, 'c_PnL': f'{compounded_pnl}%', 'PTP': f'{profitable_trades_pct}%', 'win_to_loss_ratio': get_win_to_loss_ratio(strategy), 'pnl_to_day_ratio': pnl_to_day_ratio})
    
     avg_c_pnl = get_avg_c_pnl(c_pnls)    
     return r,avg_c_pnl
@@ -108,6 +111,38 @@ def get_trade_logs(strat):
     logs_path=f'/home/henokali1/trdr/flask-webhook/logs/{strat}.csv'
     df = pd.read_csv(logs_path)
     return df
+
+def get_format_logs(strat):
+    df = get_trade_logs(strat)
+
+    date_time = list(df['date-time'])
+    pos = list(df['pos'])
+    asset = list(df['Asset'])
+    price = list(df['price'])
+    unix_ts = list(df['ts'])
+    pnl = list(df['PnL'])
+
+    frmtd = []
+    for idx, val in enumerate(pos):
+        if 'x' in val:
+            position = 'Long' if pos[idx-1] == 'el' else 'Short'
+            frmtd.append({'PnL': pnl[idx], 'Pos': position, 'Asset': asset[idx], 'Entry Time': date_time[idx-1], 'Entry Price': price[idx-1], 'Exit Time': date_time[idx], 'Exit Price': price[idx]})
+    return pd.DataFrame(frmtd).iloc[::-1]
+
+def get_win_to_loss_ratio(strat):
+    df = get_trade_logs(strat)
+    pnl = list(df['PnL'])
+    p=[]
+    n=[]
+    for i in pnl:
+        if i > 0:
+            p.append(i)
+        if i < 0:
+            n.append(i)
+    try:
+        return round(sum(p)/(-1 * sum(n)), 1)
+    except:
+        return 0.0
 
 @app.route('/d')
 def downloadFile():
@@ -132,6 +167,21 @@ def trade_log():
     n_days = get_days_cnt(s)
     pnl_to_day_ratio = compounded_pnl if n_days == 0 else round(compounded_pnl/n_days, 1)
     return render_template('logs.html', strat=s.replace('_', ' '), tables=[log.to_html()], titles=[''], compounded_pnl=compounded_pnl, profitable_trades_pct=profitable_trades_pct, pnls=pnls, n_days=n_days, pnl_to_day_ratio=pnl_to_day_ratio)
+
+@app.route('/frmtd_log')
+def frmtd_log():
+    s = request.args.get('strat')
+    stats = get_trade_logs(s)
+    log=pd.DataFrame(stats).iloc[::-1]
+    pnls = list(log['PnL'])
+    compounded_pnl = calc_compounded_pnl(pnls)
+    profitable_trades_pct = prof_pct(pnls)
+    n_days = get_days_cnt(s)
+    pnl_to_day_ratio = compounded_pnl if n_days == 0 else round(compounded_pnl/n_days, 1)
+    format_logs = get_format_logs(s)
+    win_to_loss_ratio = get_win_to_loss_ratio(s)
+    return render_template('frmtd_log.html', strat=s.replace('_', ' '), tables=[format_logs.to_html()], titles=[''], compounded_pnl=compounded_pnl, profitable_trades_pct=profitable_trades_pct, pnls=pnls, n_days=n_days, pnl_to_day_ratio=pnl_to_day_ratio, win_to_loss_ratio=win_to_loss_ratio)
+    
 
 if __name__=="__main__":
     app.run(debug=True, host='0.0.0.0', port=9999)
