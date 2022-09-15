@@ -10,7 +10,6 @@ import pickle
 import requests
 
 
-
 def get_local_time():
     UTC_OFFSET = 14400
     ts = int(time.time())
@@ -49,7 +48,8 @@ def get_btc_24hr_price_change_percent():
 
 
 def get_signal():
-    btc_24hr_pc = get_btc_24hr_price_change_percent()
+    # btc_24hr_pc = get_btc_24hr_price_change_percent()
+    btc_24hr_pc = 0.0
     print('btc_24hr_pc', btc_24hr_pc)
     end_ts = int(time.time())*1000
     start_ts = end_ts - 2591999000
@@ -110,8 +110,8 @@ client = get_client()
 UTC_OFFSET = 14400
 OFFSET_24HR = 86400000
 OFFSET_1MIN = 60000
-WT_OVERBOUGHT=-104
-WT_OVERSOLD=115
+WT_OVERBOUGHT=-101
+WT_OVERSOLD=130
 REQ_MIN = [0]
 REQ_SEC = [1]
 MODE = 'GET_SIG'

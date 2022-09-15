@@ -155,7 +155,8 @@ def webhook():
     pos = request.json['type']
     strat_id = request.json['strat_id']
     last_pos = get_last_pos(strat_id)
-    btc_24hr_pc = get_btc_24hr_price_change_percent()
+    # btc_24hr_pc = get_btc_24hr_price_change_percent()
+    btc_24hr_pc = 0.0
     if last_pos != pos:
         fn = f'logs/{strat_id}.csv'
         if (last_pos == 'es' and pos == 'xl') or (last_pos == 'el' and pos == 'xs'):

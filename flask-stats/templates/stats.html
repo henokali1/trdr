@@ -58,11 +58,11 @@
   </tr>
   {% for stat in stats %}
   <tr>
-    <td><a href="frmtd_log?strat={{stat.strategy}}">{{stat.c_PnL}}</a></td>
-    <td><a href="frmtd_log?strat={{stat.strategy}}">{{stat.pnl_to_day_ratio}}</a></td>
-    <td><a href="frmtd_log?strat={{stat.strategy}}">{{stat.win_to_loss_ratio}}</a></td>
-    <td><a href="frmtd_log?strat={{stat.strategy}}">{{stat.PTP}}</a></td>
-    <td><a href="frmtd_log?strat={{stat.strategy}}">{{stat.strategy}}</a></td>
+    <td><a href="trade_log?strat={{stat.strategy}}">{{stat.c_PnL}}</a></td>
+    <td><a href="trade_log?strat={{stat.strategy}}">{{stat.pnl_to_day_ratio}}</a></td>
+    <td><a href="trade_log?strat={{stat.strategy}}">{{stat.win_to_loss_ratio}}</a></td>
+    <td><a href="trade_log?strat={{stat.strategy}}">{{stat.PTP}}</a></td>
+    <td><a href="trade_log?strat={{stat.strategy}}">{{stat.strategy}}</a></td>
     <td><a href="d?strat={{stat.strategy}}">CSV</a></td>
   </tr>
   {% endfor %}

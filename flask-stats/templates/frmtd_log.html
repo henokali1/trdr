@@ -28,6 +28,7 @@
         <label for="leverage">Leverage:</label>
         <input type="text" id="leverage" name="leverage" type="number" value="1" autofocus><br><br>
         <h4>Leveraged PnL: <span id="Leveraged_pnl">{{compounded_pnl}}</span></h4>
+        <h1><strong>{{compounded_pnl}}% | {{pnl_to_day_ratio}}%/d</strong></h1>
         <!--Displaying the converted table-->
              {% for table in tables %}
             <h2>{{titles[loop.index]}}</h2>                            
