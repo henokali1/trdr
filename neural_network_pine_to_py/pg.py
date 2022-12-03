@@ -20,6 +20,7 @@ def get_masell(m_out111):
     return r
  
 
+
 downloads_path = str(Path.home() / "Downloads")
 tv_exp_fn = f'{downloads_path}\\BINANCE_BTCUSDTPERP, 3.csv'
 
@@ -57,16 +58,19 @@ m_out4 = ta.ema(tv_df['close'], len4)
 m_out5 = ta.ema(tv_df['close'], len5)
 
 # Supertrend
-
-
+atrPeriod = 10
+factor = 3
+supertrend_df = ta.supertrend(tv_df['high'], tv_df['low'], tv_df['close'], length=atrPeriod, multiplier=factor)
+m_supertrend = list(supertrend_df['SUPERT_10_3.0'])
+m_direction = list(supertrend_df['SUPERTd_10_3.0'])
 
 exp_df = pd.DataFrame()
 exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['out5'] = list(tv_df['out5'])
-exp_df['m_out5'] = m_out5
+exp_df['direction'] = list(tv_df['direction'])
+exp_df['m_direction'] = m_direction
 
 exp_fn = 'exp_df.csv'
 exp_df.to_csv(exp_fn, index=False)
