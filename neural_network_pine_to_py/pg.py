@@ -19,6 +19,8 @@ def get_masell(m_out111):
             r.append(int(m_out111[idx] < m_out111[idx-1]))
     return r
  
+def get_m_direction(dta):
+    return [-1*int(i) for i in dta]
 
 
 downloads_path = str(Path.home() / "Downloads")
@@ -62,13 +64,15 @@ atrPeriod = 10
 factor = 3
 supertrend_df = ta.supertrend(tv_df['high'], tv_df['low'], tv_df['close'], length=atrPeriod, multiplier=factor)
 m_supertrend = list(supertrend_df['SUPERT_10_3.0'])
-m_direction = list(supertrend_df['SUPERTd_10_3.0'])
+m_direction = get_m_direction(list(supertrend_df['SUPERTd_10_3.0']))
 
 exp_df = pd.DataFrame()
 exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
+exp_df['supertrend'] = list(tv_df['supertrend'])
+exp_df['m_supertrend'] = m_supertrend
 exp_df['direction'] = list(tv_df['direction'])
 exp_df['m_direction'] = m_direction
 
