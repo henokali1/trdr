@@ -75,25 +75,29 @@ m_hma = ta.wma(2*ta.wma(tv_df['close'], len6/2) - ta.wma(tv_df['close'], len6), 
 start = 0.02
 increment = 0.01
 maximum = 0.2
-m_psr = ta.psar(high=tv_df['high'], low=tv_df['low'], max_af=maximum, af0=start, af=increment)
+# m_psr = ta.psar(high=tv_df['high'], low=tv_df['low'], af0=start, af=increment, max_af=maximum)
 
-# Args:
-#     high (pd.Series): Series of 'high's
-#     low (pd.Series): Series of 'low's
-#     close (pd.Series, optional): Series of 'close's. Optional
-#     af0 (float): Initial Acceleration Factor. Default: 0.02
-#     af (float): Acceleration Factor. Default: 0.02
-#     max_af (float): Maximum Acceleration Factor. Default: 0.2
-#     offset (int): How many periods to offset the result. Default: 0
+# RSI Divergence////////////////////////////////////////////////////////////////
+len11 = 14
+src11 = tv_df['close']
+lbR11 = 2
+lbL11 = 6
+rangeUpper11 = 60
+rangeLower11 = 5
+plotBull11 = True
+plotHiddenBull11 = False
+plotBear11 = True
+plotHiddenBear11 = False
+m_osc11 = ta.rsi(src11, len11)
+# plFound11 = na(pivotlow(osc11, lbL11, lbR11)) ? false : true
 
 exp_df = pd.DataFrame()
 exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['psar'] = list(tv_df['psar'])
-exp_df['PSARl_0.02_0.2'] = list(m_psr['PSARl_0.02_0.2'])
-exp_df['PSARs_0.02_0.2'] = list(m_psr['PSARs_0.02_0.2'])
+exp_df['pivotlow'] = list(tv_df['pivotlow'])
+exp_df['m_osc11'] = m_osc11
 
 exp_fn = 'exp_df.csv'
 exp_df.to_csv(exp_fn, index=False)
