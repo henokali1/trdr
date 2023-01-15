@@ -29,14 +29,6 @@ def get_isRegularFractal(mode):
     return ret
 
 def get_isBWFractal(mode):
-    # isBWFractal(mode) =>
-    # ret = mode == 1 ? high[4] < high[2] and high[3] <= high[2] and high[2] >= high[1] and 
-    #    high[2] > high[0] : mode == -1 ? 
-    #    low[4] > low[2] and low[3] >= low[2] and low[2] <= low[1] and low[2] < low[0] : 
-    #    false
-    # ret
-    # expr1 ? expr2 : expr3
-    # RETURNS expr2 if expr1 is evaluated to true, expr3 otherwise
     ret = []
     for idx in range(len(low_price)):
         if idx >= 4:
