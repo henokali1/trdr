@@ -42,6 +42,13 @@ def get_isBWFractal(mode):
             ret.append(0)
     return ret
 
+def get_TrendDirection():
+    r = [(-1 if m_fastEMA[i] < m_mediumEMA[i] and m_pacU[i] < m_mediumEMA[i] else
+          1 if m_fastEMA[i] > m_mediumEMA[i] and m_pacL[i] > m_mediumEMA[i] else
+          0) for i in range(len(m_fastEMA))]
+    return r
+
+
 
 
 tv_df = pd.read_csv(tv_exp_fn)
@@ -127,14 +134,15 @@ m_slowEMA = ta.ema(tv_df['close'], slowEMAlength)
 m_pacC = ta.ema(tv_df['close'], HiLoLen)
 m_pacL = ta.ema(tv_df['low'], HiLoLen)
 m_pacU = ta.ema(tv_df['high'], HiLoLen)
+m_TrendDirection = get_TrendDirection()
 
 exp_df = pd.DataFrame()
 exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['pacU'] = list(tv_df['pacU'])
-exp_df['m_pacU'] = m_pacU
+exp_df['TrendDirection'] = list(tv_df['TrendDirection'])
+exp_df['m_TrendDirection'] = m_TrendDirection
 
 exp_fn = 'exp_df.csv'
 exp_df.to_csv(exp_fn, index=False)
