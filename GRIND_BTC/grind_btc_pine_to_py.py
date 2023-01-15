@@ -14,6 +14,44 @@ def get_hl2(high_price, low_price):
 def get_src0(close_price):
     return [None] + close_price[:-1]
 
+def get_isRegularFractal(mode):
+    ret = []
+    for idx in range(len(low_price)):
+        if idx >= 4:
+            if mode == 1:
+                ret.append(1 if(high_price[idx-4] < high_price[idx-3] and high_price[idx-3] < high_price[idx-2] and high_price[idx-2] > high_price[idx-1] and high_price[idx-1] > high_price[idx-0]) else 0)
+            elif mode == -1:
+                ret.append(1 if (low_price[idx-4] > low_price[idx-3] and low_price[idx-3] > low_price[idx-2] and low_price[idx-2] < low_price[idx-1] and low_price[idx-1] < low_price[idx-0]) else 0)
+            else:
+                ret.append(0)
+        else:
+            ret.append(0)
+    return ret
+
+def get_isBWFractal(mode):
+    # isBWFractal(mode) =>
+    # ret = mode == 1 ? high[4] < high[2] and high[3] <= high[2] and high[2] >= high[1] and 
+    #    high[2] > high[0] : mode == -1 ? 
+    #    low[4] > low[2] and low[3] >= low[2] and low[2] <= low[1] and low[2] < low[0] : 
+    #    false
+    # ret
+    # expr1 ? expr2 : expr3
+    # RETURNS expr2 if expr1 is evaluated to true, expr3 otherwise
+    ret = []
+    for idx in range(len(low_price)):
+        if idx >= 4:
+            if mode == 1:
+                ret.append(1 if (high_price[idx-4] < high_price[idx-2] and high_price[idx-3] <= high_price[idx-2] and high_price[idx-2] >= high_price[idx-1] and high_price[idx-2] > high_price[idx-0]) else 0)
+            elif mode == -1:
+                ret.appnd(1 if (low_price[idx-4] > low_price[idx-2] and low_price[idx-3] >= low_price[idx-2] and low_price[idx-2] <= low_price[idx-1] and low_price[idx-2] < low_price[idx-0]) else 0)
+            else:
+                ret.append(0)
+        else:
+            ret.append(0)
+    return ret
+
+
+
 tv_df = pd.read_csv(tv_exp_fn)
 open_price = list(tv_df['open'])
 high_price = list(tv_df['high'])
@@ -96,8 +134,8 @@ exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['src0'] = list(tv_df['src0'])
-exp_df['m_src0'] = m_src0
+exp_df['isBWFractal(1)'] = list(tv_df['isBWFractal(1)'])
+exp_df['m_get_isBWFractal(1)'] = get_isBWFractal(1)
 
 exp_fn = 'exp_df.csv'
 exp_df.to_csv(exp_fn, index=False)
