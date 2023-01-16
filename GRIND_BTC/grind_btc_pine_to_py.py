@@ -48,7 +48,14 @@ def get_TrendDirection():
           0) for i in range(len(m_fastEMA))]
     return r
 
-
+def valuewhen(condition, source, occurrence):
+    prev = None
+    r=[]
+    for idx,val in enumerate(condition):
+        if val:
+            prev = source[idx]
+        r.append(prev)
+    return r
 
 
 tv_df = pd.read_csv(tv_exp_fn)
@@ -135,16 +142,17 @@ m_pacC = ta.ema(tv_df['close'], HiLoLen)
 m_pacL = ta.ema(tv_df['low'], HiLoLen)
 m_pacU = ta.ema(tv_df['high'], HiLoLen)
 m_TrendDirection = get_TrendDirection()
-m_filteredbotf = get_isBWFractal(1)
+m_filteredtopf = get_isBWFractal(1)
 m_filteredbotf = get_isBWFractal(-1)
+m_valuewhen_H0 = valuewhen(m_filteredtopf, [None, None]+high_price[:-2], 0)
 
 exp_df = pd.DataFrame()
 exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['filteredbotf'] = list(tv_df['filteredbotf'])
-exp_df['m_filteredbotf'] = m_filteredbotf
+exp_df['valuewhen_H0'] = list(tv_df['valuewhen_H0'])
+exp_df['m_valuewhen_H0'] = m_valuewhen_H0
 
 exp_fn = 'exp_df.csv'
 exp_df.to_csv(exp_fn, index=False)
