@@ -35,7 +35,7 @@ def get_isBWFractal(mode):
             if mode == 1:
                 ret.append(1 if (high_price[idx-4] < high_price[idx-2] and high_price[idx-3] <= high_price[idx-2] and high_price[idx-2] >= high_price[idx-1] and high_price[idx-2] > high_price[idx-0]) else 0)
             elif mode == -1:
-                ret.appnd(1 if (low_price[idx-4] > low_price[idx-2] and low_price[idx-3] >= low_price[idx-2] and low_price[idx-2] <= low_price[idx-1] and low_price[idx-2] < low_price[idx-0]) else 0)
+                ret.append(1 if (low_price[idx-4] > low_price[idx-2] and low_price[idx-3] >= low_price[idx-2] and low_price[idx-2] <= low_price[idx-1] and low_price[idx-2] < low_price[idx-0]) else 0)
             else:
                 ret.append(0)
         else:
@@ -136,13 +136,14 @@ m_pacL = ta.ema(tv_df['low'], HiLoLen)
 m_pacU = ta.ema(tv_df['high'], HiLoLen)
 m_TrendDirection = get_TrendDirection()
 m_filteredbotf = get_isBWFractal(1)
+m_filteredbotf = get_isBWFractal(-1)
 
 exp_df = pd.DataFrame()
 exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['filteredtopf'] = list(tv_df['filteredtopf'])
+exp_df['filteredbotf'] = list(tv_df['filteredbotf'])
 exp_df['m_filteredbotf'] = m_filteredbotf
 
 exp_fn = 'exp_df.csv'
