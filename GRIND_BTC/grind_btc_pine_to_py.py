@@ -49,12 +49,12 @@ def get_TrendDirection():
     return r
 
 def valuewhen(condition, source, occurrence):
-    prev = None
+    prev = [None]*(occurrence+1)
     r=[]
     for idx,val in enumerate(condition):
         if val:
-            prev = source[idx]
-        r.append(prev)
+            prev.append(source[idx])
+        r.append(prev[-1*(occurrence+1)])
     return r
 
 
@@ -145,14 +145,17 @@ m_TrendDirection = get_TrendDirection()
 m_filteredtopf = get_isBWFractal(1)
 m_filteredbotf = get_isBWFractal(-1)
 m_valuewhen_H0 = valuewhen(m_filteredtopf, [None, None]+high_price[:-2], 0)
+m_valuewhen_H1 = valuewhen(m_filteredtopf, [None, None]+high_price[:-2], 1)
+m_valuewhen_H2 = valuewhen(m_filteredtopf, [None, None]+high_price[:-2], 2)
+
 
 exp_df = pd.DataFrame()
 exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['valuewhen_H0'] = list(tv_df['valuewhen_H0'])
-exp_df['m_valuewhen_H0'] = m_valuewhen_H0
+exp_df['valuewhen_H2'] = list(tv_df['valuewhen_H2'])
+exp_df['m_valuewhen_H2'] = m_valuewhen_H2
 
 exp_fn = 'exp_df.csv'
 exp_df.to_csv(exp_fn, index=False)
