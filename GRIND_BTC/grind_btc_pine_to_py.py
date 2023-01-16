@@ -135,14 +135,15 @@ m_pacC = ta.ema(tv_df['close'], HiLoLen)
 m_pacL = ta.ema(tv_df['low'], HiLoLen)
 m_pacU = ta.ema(tv_df['high'], HiLoLen)
 m_TrendDirection = get_TrendDirection()
+m_filteredbotf = get_isBWFractal(1)
 
 exp_df = pd.DataFrame()
 exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['TrendDirection'] = list(tv_df['TrendDirection'])
-exp_df['m_TrendDirection'] = m_TrendDirection
+exp_df['filteredtopf'] = list(tv_df['filteredtopf'])
+exp_df['m_filteredbotf'] = m_filteredbotf
 
 exp_fn = 'exp_df.csv'
 exp_df.to_csv(exp_fn, index=False)
