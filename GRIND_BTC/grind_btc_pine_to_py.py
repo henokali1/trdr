@@ -105,10 +105,27 @@ def get_lowerlow():
             r.append(0)
     return r
 
+def barssince(condition):
+    cntr=0
+    r=[]
+    for idx,val in enumerate(condition):
+        if (idx > 1) and (condition[idx-1] == 1 ) and (val == 0):
+            cntr += 1
+            r.append(cntr)
+            continue
+        if (idx > 1) and (condition[idx-1] == 0 ) and (val == 1):
+            cntr = 0
+            r.append(0)
+            continue
+        else:
+            r.append(0)
+        
+    return r
 
 
 
 tv_df = pd.read_csv(tv_exp_fn)
+os.remove(tv_exp_fn)
 open_price = list(tv_df['open'])
 high_price = list(tv_df['high'])
 low_price = list(tv_df['low'])
@@ -204,15 +221,17 @@ m_valuewhen_L1 = valuewhen(m_filteredbotf, [None, None]+low_price[:-2], 1)
 m_valuewhen_L2 = valuewhen(m_filteredbotf, [None, None]+low_price[:-2], 2)
 m_higherlow = get_higherlow()
 m_lowerlow = get_lowerlow()
+m_barssince_haClose_lt_pacC = barssince([1 if haClose[i]<m_pacC[i] else 0 for i in range(len(haClose))])
 
 exp_df = pd.DataFrame()
 exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['lowerlow'] = list(tv_df['lowerlow'])
-exp_df['m_lowerlow'] = m_lowerlow
+exp_df['haClosepacC'] = list(tv_df['haClosepacC'])
+exp_df['barssince'] = list(tv_df['barssince'])
+exp_df['m_barssince_haClose_lt_pacC'] = m_barssince_haClose_lt_pacC
 
-exp_fn = 'exp_df.csv'
+exp_fn = f'{downloads_path}\\exp_df.csv'
 exp_df.to_csv(exp_fn, index=False)
 os.system(f"start EXCEL.EXE {exp_fn}")
