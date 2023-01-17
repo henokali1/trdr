@@ -57,6 +57,23 @@ def valuewhen(condition, source, occurrence):
         r.append(prev[-1*(occurrence+1)])
     return r
 
+def get_higherhigh():
+    r=[]
+    for i in m_filteredtopf:
+        try:
+            if i == 1:
+                r.append(m_valuewhen_H1 < m_valuewhen_H0 and m_valuewhen_H2 < m_valuewhen_H0)
+            else:
+                r.append(0)
+        except:
+            r.append(0)
+    print(m_filteredtopf[-10:])
+    return r
+
+
+#     higherhigh = filteredtopf == false ? false : 
+#    valuewhen_H1 < valuewhen_H0 and valuewhen_H2 < valuewhen_H0
+
 
 tv_df = pd.read_csv(tv_exp_fn)
 open_price = list(tv_df['open'])
@@ -147,6 +164,7 @@ m_filteredbotf = get_isBWFractal(-1)
 m_valuewhen_H0 = valuewhen(m_filteredtopf, [None, None]+high_price[:-2], 0)
 m_valuewhen_H1 = valuewhen(m_filteredtopf, [None, None]+high_price[:-2], 1)
 m_valuewhen_H2 = valuewhen(m_filteredtopf, [None, None]+high_price[:-2], 2)
+m_higherhigh = get_higherhigh()
 
 
 exp_df = pd.DataFrame()
@@ -154,8 +172,8 @@ exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['valuewhen_H2'] = list(tv_df['valuewhen_H2'])
-exp_df['m_valuewhen_H2'] = m_valuewhen_H2
+exp_df['higherhigh'] = list(tv_df['higherhigh'])
+exp_df['m_higherhigh'] = m_higherhigh
 
 exp_fn = 'exp_df.csv'
 exp_df.to_csv(exp_fn, index=False)
