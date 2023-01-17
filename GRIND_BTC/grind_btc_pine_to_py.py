@@ -177,6 +177,9 @@ m_valuewhen_H1 = valuewhen(m_filteredtopf, [None, None]+high_price[:-2], 1)
 m_valuewhen_H2 = valuewhen(m_filteredtopf, [None, None]+high_price[:-2], 2)
 m_higherhigh = get_higherhigh()
 m_lowerhigh = get_lowerhigh()
+m_valuewhen_L0 = valuewhen(m_filteredbotf, [None, None]+low_price[:-2], 0)
+m_valuewhen_L1 = valuewhen(m_filteredbotf, [None, None]+low_price[:-2], 1)
+m_valuewhen_L2 = valuewhen(m_filteredbotf, [None, None]+low_price[:-2], 2)
 
 
 exp_df = pd.DataFrame()
@@ -184,8 +187,8 @@ exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['lowerhigh'] = list(tv_df['lowerhigh'])
-exp_df['m_lowerhigh'] = m_lowerhigh
+exp_df['valuewhen_L2'] = list(tv_df['valuewhen_L2'])
+exp_df['m_valuewhen_L2'] = m_valuewhen_L2
 
 exp_fn = 'exp_df.csv'
 exp_df.to_csv(exp_fn, index=False)
