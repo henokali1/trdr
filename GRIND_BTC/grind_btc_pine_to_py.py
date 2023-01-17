@@ -225,14 +225,15 @@ m_pacExitU = [1 if(haOpen[i] < m_pacU[i] and haClose[i] > m_pacU[i] and m_barssi
 m_pacExitL = [1 if(haOpen[i] > m_pacL[i] and haClose[i] < m_pacL[i] and m_barssince_haClose_gt_pacC[i] <= Lookback) else 0 for i in range(len(m_barssince_haClose_gt_pacC))]
 tv_TrendDirection = list(tv_df['TrendDirection'])
 m_Buy = [1 if(tv_TrendDirection[i] == 1 and m_pacExitU[i]) else 0 for i in range(len(tv_TrendDirection))]
+m_Sell = [1 if(tv_TrendDirection[i] == -1 and m_pacExitL[i]) else 0 for i in range(len(tv_TrendDirection))]
 
 exp_df = pd.DataFrame()
 exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['Buy'] = list(tv_df['Buy'])
-exp_df['m_Buy'] = m_Buy
+exp_df['Sell'] = list(tv_df['Sell'])
+exp_df['m_Sell'] = m_Sell
 
 exp_fn = f'{downloads_path}\\exp_df.csv'
 exp_df.to_csv(exp_fn, index=False)
