@@ -81,9 +81,31 @@ def get_lowerhigh():
             r.append(0)
     return r
 
+def get_higherlow():
+    r=[]
+    for idx,val in enumerate(m_filteredbotf):
+        try:
+            if val == 0:
+                r.append(0)
+            else:
+                r.append(1 if m_valuewhen_L1[idx] < m_valuewhen_L0[idx] and m_valuewhen_L2[idx] < m_valuewhen_L0[idx] else 0)
+        except:
+            r.append(0)
+    return r
 
-# lowerhigh = filteredtopf == false ? false : 
-#    valuewhen_H1 > valuewhen_H0 and valuewhen_H2 > valuewhen_H0
+def get_lowerlow():
+    r=[]
+    for idx,val in enumerate(m_filteredbotf):
+        try:
+            if val == 0:
+                r.append(0)
+            else:
+                r.append(1 if m_valuewhen_L1[idx] > m_valuewhen_L0[idx] and m_valuewhen_L2[idx] > m_valuewhen_L0[idx] else 0)
+        except:
+            r.append(0)
+    return r
+
+
 
 
 tv_df = pd.read_csv(tv_exp_fn)
@@ -180,15 +202,16 @@ m_lowerhigh = get_lowerhigh()
 m_valuewhen_L0 = valuewhen(m_filteredbotf, [None, None]+low_price[:-2], 0)
 m_valuewhen_L1 = valuewhen(m_filteredbotf, [None, None]+low_price[:-2], 1)
 m_valuewhen_L2 = valuewhen(m_filteredbotf, [None, None]+low_price[:-2], 2)
-
+m_higherlow = get_higherlow()
+m_lowerlow = get_lowerlow()
 
 exp_df = pd.DataFrame()
 exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['valuewhen_L2'] = list(tv_df['valuewhen_L2'])
-exp_df['m_valuewhen_L2'] = m_valuewhen_L2
+exp_df['lowerlow'] = list(tv_df['lowerlow'])
+exp_df['m_lowerlow'] = m_lowerlow
 
 exp_fn = 'exp_df.csv'
 exp_df.to_csv(exp_fn, index=False)
