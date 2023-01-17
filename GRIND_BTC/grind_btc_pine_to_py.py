@@ -107,19 +107,17 @@ def get_lowerlow():
 
 def barssince(condition):
     cntr=0
+    cnt = False
     r=[]
     for idx,val in enumerate(condition):
         if (idx > 1) and (condition[idx-1] == 1 ) and (val == 0):
-            cntr += 1
-            r.append(cntr)
-            continue
+            cnt = True
         if (idx > 1) and (condition[idx-1] == 0 ) and (val == 1):
             cntr = 0
-            r.append(0)
-            continue
-        else:
-            r.append(0)
-        
+            cnt = False
+        if cnt:
+            cntr += 1
+        r.append(cntr)
     return r
 
 
@@ -222,15 +220,18 @@ m_valuewhen_L2 = valuewhen(m_filteredbotf, [None, None]+low_price[:-2], 2)
 m_higherlow = get_higherlow()
 m_lowerlow = get_lowerlow()
 m_barssince_haClose_lt_pacC = barssince([1 if haClose[i]<m_pacC[i] else 0 for i in range(len(haClose))])
+m_barssince_haClose_gt_pacC = barssince([1 if haClose[i]>m_pacC[i] else 0 for i in range(len(haClose))])
+m_pacExitU = [1 if(haOpen[i] < m_pacU[i] and haClose[i] > m_pacU[i] and m_barssince_haClose_lt_pacC[i] <= Lookback) else 0 for i in range(len(m_barssince_haClose_lt_pacC))]
+m_pacExitL = [1 if(haOpen[i] > m_pacL[i] and haClose[i] < m_pacL[i] and m_barssince_haClose_gt_pacC[i] <= Lookback) else 0 for i in range(len(m_barssince_haClose_gt_pacC))]
+# pacExitU = haOpen < pacU and haClose > pacU and barssince(haClose<pacC)<=Lookback
 
 exp_df = pd.DataFrame()
 exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['haClosepacC'] = list(tv_df['haClosepacC'])
-exp_df['barssince'] = list(tv_df['barssince'])
-exp_df['m_barssince_haClose_lt_pacC'] = m_barssince_haClose_lt_pacC
+exp_df['pacExitL'] = list(tv_df['pacExitL'])
+exp_df['m_pacExitL'] = m_pacExitL
 
 exp_fn = f'{downloads_path}\\exp_df.csv'
 exp_df.to_csv(exp_fn, index=False)
