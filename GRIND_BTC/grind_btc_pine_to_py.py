@@ -59,20 +59,17 @@ def valuewhen(condition, source, occurrence):
 
 def get_higherhigh():
     r=[]
-    for i in m_filteredtopf:
+    for idx,val in enumerate(m_filteredtopf):
         try:
-            if i == 1:
-                r.append(m_valuewhen_H1 < m_valuewhen_H0 and m_valuewhen_H2 < m_valuewhen_H0)
-            else:
+            if val == 0:
                 r.append(0)
+            else:
+                r.append(1 if m_valuewhen_H1[idx] < m_valuewhen_H0[idx] and m_valuewhen_H2[idx] < m_valuewhen_H0[idx] else 0)
         except:
             r.append(0)
-    print(m_filteredtopf[-10:])
     return r
 
 
-#     higherhigh = filteredtopf == false ? false : 
-#    valuewhen_H1 < valuewhen_H0 and valuewhen_H2 < valuewhen_H0
 
 
 tv_df = pd.read_csv(tv_exp_fn)
