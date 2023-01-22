@@ -135,21 +135,6 @@ def get_TradeDirection():
             TradeDirection.append(TradeDirection[-1])
     return TradeDirection
 
-def na(val):
-    return 1 if val == None else 0
-
-def calcADX(_len):
-    up=[None]
-    down=[None]
-    plusDM=[None]
-    minusDM=[None]
-    for idx in range(1, len(high_price)):
-        up.append(high_price[idx] - high_price[idx-1])
-        down.append(-1*(low_price[idx] - low_price[idx-1]))
-        plusDM.append(1 if na(up[idx]) else up[idx] if up[idx] > down[idx] and up[idx] > 0 else 0)
-        minusDM.append(1 if na(down[idx]) else down[idx] if down[idx] > up[idx] and down[idx] > 0 else 0)
-    return minusDM
-
 
 
 
@@ -261,15 +246,18 @@ m_L_scalp = [0] + [1 if m_TradeDirection[i-1] == 0 and m_TradeDirection[i] == 1 
 m_S_scalp = [0] + [1 if m_TradeDirection[i-1] == 0 and m_TradeDirection[i] == -1 else 0 for i in range(1, len(m_TradeDirection))]
 
 # INDICATORS ============================================================================================================================================================================
-calcADX = calcADX(ADX_len)
+ta_adx = ta.adx(tv_df['high'], tv_df['low'], tv_df['close'], ADX_len)
+m_DIPlusC = ta_adx['DMP_9']
+m_DIMinusC = ta_adx['DMN_9']
+m_ADXC = ta_adx['ADX_9']
 
 exp_df = pd.DataFrame()
 exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['mminusDM'] = list(tv_df['mminusDM'])
-exp_df['calcADX'] = calcADX
+exp_df['ADXC'] = list(tv_df['ADXC'])
+exp_df['m_ADXC'] = m_ADXC
 
 
 exp_fn = f'{downloads_path}\\exp_df.csv'
