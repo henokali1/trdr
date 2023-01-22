@@ -135,6 +135,18 @@ def get_TradeDirection():
             TradeDirection.append(TradeDirection[-1])
     return TradeDirection
 
+def na(val):
+    return 1 if val == None else 0
+
+def calcADX(_len):
+    up=[None]
+    down=[None]
+    plusDM=[None]
+    for idx in range(1, len(high_price)):
+        up.append(high_price[idx] - high_price[idx-1])
+        down.append(-1*(low_price[idx] - low_price[idx-1]))
+        plusDM.append(1 if na(up[idx]) else up[idx] if up[idx] > down[idx] and up[idx] > 0 else 0)
+    return plusDM
 
 
 
@@ -194,13 +206,13 @@ width = 1
 # Volume Delta
 periodMa = 5
 
-# BACKTESTING ========================================================================================================================================
+# BACKTESTING ============================================================================================================================================================================
 ACT_BT = True
 long_ = True
 short_ = True
 risk = 100
 
-# SCALPING ========================================================================================================================================
+# SCALPING ==============================================================================================================================================================================
 # Inputs
 ACT_SCLP = True
 HiLoLen = 24
@@ -245,15 +257,17 @@ m_Sell = [1 if(m_TrendDirection[i] == -1 and m_pacExitL[i]) else 0 for i in rang
 m_TradeDirection = get_TradeDirection()
 m_L_scalp = [0] + [1 if m_TradeDirection[i-1] == 0 and m_TradeDirection[i] == 1 else 0 for i in range(1, len(m_TradeDirection))]
 m_S_scalp = [0] + [1 if m_TradeDirection[i-1] == 0 and m_TradeDirection[i] == -1 else 0 for i in range(1, len(m_TradeDirection))]
-# nz(TradeDirection[1]) == 0 and TradeDirection == -1
+
+# INDICATORS ============================================================================================================================================================================
+calcADX = calcADX(ADX_len)
 
 exp_df = pd.DataFrame()
 exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['L_scalp'] = list(tv_df['L_scalp'])
-exp_df['m_L_scalp'] = m_L_scalp
+exp_df['mplusDM'] = list(tv_df['mplusDM'])
+exp_df['calcADX'] = calcADX
 
 
 exp_fn = f'{downloads_path}\\exp_df.csv'
