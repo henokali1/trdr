@@ -142,11 +142,13 @@ def calcADX(_len):
     up=[None]
     down=[None]
     plusDM=[None]
+    minusDM=[None]
     for idx in range(1, len(high_price)):
         up.append(high_price[idx] - high_price[idx-1])
         down.append(-1*(low_price[idx] - low_price[idx-1]))
         plusDM.append(1 if na(up[idx]) else up[idx] if up[idx] > down[idx] and up[idx] > 0 else 0)
-    return plusDM
+        minusDM.append(1 if na(down[idx]) else down[idx] if down[idx] > up[idx] and down[idx] > 0 else 0)
+    return minusDM
 
 
 
@@ -266,7 +268,7 @@ exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['mplusDM'] = list(tv_df['mplusDM'])
+exp_df['mminusDM'] = list(tv_df['mminusDM'])
 exp_df['calcADX'] = calcADX
 
 
