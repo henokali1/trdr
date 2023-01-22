@@ -135,6 +135,10 @@ def get_TradeDirection():
             TradeDirection.append(TradeDirection[-1])
     return TradeDirection
 
+def get_L_scalp():
+    return [1 if m_TradeDirection[i-1] == 0 and m_TradeDirection[i] == 1 else 0 for i in range(1, len(m_TradeDirection))]
+
+
 
 
 tv_df = pd.read_csv(tv_exp_fn)
@@ -241,14 +245,17 @@ m_pacExitL = [1 if(haOpen[i] > m_pacL[i] and haClose[i] < m_pacL[i] and m_barssi
 m_Buy = [1 if(m_TrendDirection[i] == 1 and m_pacExitU[i]) else 0 for i in range(len(m_TrendDirection))]
 m_Sell = [1 if(m_TrendDirection[i] == -1 and m_pacExitL[i]) else 0 for i in range(len(m_TrendDirection))]
 m_TradeDirection = get_TradeDirection()
+m_L_scalp = [0] + get_L_scalp()
+
+
 
 exp_df = pd.DataFrame()
 exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['TradeDirection'] = list(tv_df['TradeDirection'])
-exp_df['m_TradeDirection'] = m_TradeDirection
+exp_df['L_scalp'] = list(tv_df['L_scalp'])
+exp_df['m_L_scalp'] = m_L_scalp
 
 
 exp_fn = f'{downloads_path}\\exp_df.csv'
