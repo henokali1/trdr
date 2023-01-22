@@ -120,6 +120,21 @@ def barssince(condition):
         r.append(cntr)
     return r
 
+def get_TradeDirection():
+    TradeDirection = [0]
+    for idx in range(1, len(haClose)):
+        if TradeDirection[-1] == 1 and haClose[idx] < m_pacC[idx]:
+            TradeDirection.append(0)
+        elif TradeDirection[-1] == -1 and haClose[idx] > m_pacC[idx]:
+            TradeDirection.append(0)
+        elif TradeDirection[-1] == 0 and m_Buy[idx]:
+            TradeDirection.append(1)
+        elif TradeDirection[-1] == 0 and m_Sell[idx]:
+            TradeDirection.append(-1)
+        else:
+            TradeDirection.append(TradeDirection[-1])
+    return TradeDirection
+
 
 
 tv_df = pd.read_csv(tv_exp_fn)
@@ -225,16 +240,16 @@ m_pacExitU = [1 if(haOpen[i] < m_pacU[i] and haClose[i] > m_pacU[i] and m_barssi
 m_pacExitL = [1 if(haOpen[i] > m_pacL[i] and haClose[i] < m_pacL[i] and m_barssince_haClose_gt_pacC[i] <= Lookback) else 0 for i in range(len(m_barssince_haClose_gt_pacC))]
 m_Buy = [1 if(m_TrendDirection[i] == 1 and m_pacExitU[i]) else 0 for i in range(len(m_TrendDirection))]
 m_Sell = [1 if(m_TrendDirection[i] == -1 and m_pacExitL[i]) else 0 for i in range(len(m_TrendDirection))]
+m_TradeDirection = get_TradeDirection()
 
 exp_df = pd.DataFrame()
 exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['Sell'] = list(tv_df['Sell'])
-exp_df['Buy'] = list(tv_df['Buy'])
-exp_df['m_Buy'] = m_Buy
-exp_df['m_Sell'] = m_Sell
+exp_df['TradeDirection'] = list(tv_df['TradeDirection'])
+exp_df['m_TradeDirection'] = m_TradeDirection
+
 
 exp_fn = f'{downloads_path}\\exp_df.csv'
 exp_df.to_csv(exp_fn, index=False)
