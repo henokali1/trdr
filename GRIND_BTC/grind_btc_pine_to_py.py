@@ -135,6 +135,21 @@ def get_TradeDirection():
             TradeDirection.append(TradeDirection[-1])
     return TradeDirection
 
+def nz(val):
+    return 0 if val == None else val
+
+def calcADX_Masanakamura(_len):
+    SmoothedTrueRange = 0.0
+    SmoothedDirectionalMovementPlus = 0.0
+    SmoothedDirectionalMovementMinus = 0.0
+    TrueRange=[]
+    DirectionalMovementPlus=[]
+    for idx in range(len(high_price)):
+        TrueRange.append(max(max(high_price[idx] - low_price[idx], abs(high_price[idx] - nz(close_price[idx-1]))), abs(low_price[idx] - nz(close_price[idx-1]))))
+        DirectionalMovementPlus.append(max(high_price[idx] - nz(high_price[idx-1]), 0) if high_price[idx] - nz(high_price[idx-1]) > nz(low_price[idx-1]) - low_price[idx] else 0)
+        
+    
+    return DirectionalMovementPlus
 
 
 
@@ -250,14 +265,16 @@ ta_adx = ta.adx(tv_df['high'], tv_df['low'], tv_df['close'], ADX_len)
 m_DIPlusC = ta_adx['DMP_9']
 m_DIMinusC = ta_adx['DMN_9']
 m_ADXC = ta_adx['ADX_9']
+m_tv_TrueRange = calcADX_Masanakamura(ADX_len)
+
 
 exp_df = pd.DataFrame()
 exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['ADXC'] = list(tv_df['ADXC'])
-exp_df['m_ADXC'] = m_ADXC
+exp_df['tv_DirectionalMovementPlus'] = list(tv_df['tv_DirectionalMovementPlus'])
+exp_df['m_tv_TrueRange'] = m_tv_TrueRange
 
 
 exp_fn = f'{downloads_path}\\exp_df.csv'
