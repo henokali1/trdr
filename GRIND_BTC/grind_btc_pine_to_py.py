@@ -282,6 +282,7 @@ m_DIPlusM, m_DIMinusM, m_ADXM = calcADX_Masanakamura(ADX_len)
 m_DIPlus = m_DIPlusM
 m_DIMinus = m_DIMinusM
 m_ADX = m_ADXM
+m_L_adx = [1 if m_DIPlus[idx] > m_DIMinus[idx] and m_ADX[idx] > th else 0 for idx in range(len(m_DIPlus))]
 
 
 exp_df = pd.DataFrame()
@@ -289,8 +290,8 @@ exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['ADX'] = list(tv_df['ADX'])
-exp_df['m_ADXM'] = m_ADXM
+exp_df['L_adx'] = list(tv_df['L_adx'])
+exp_df['m_L_adx'] = m_L_adx
 # =ROUND(E2,1)=ROUND(F2,1)
 
 
