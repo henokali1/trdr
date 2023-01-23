@@ -285,13 +285,16 @@ m_ADX = m_ADXM
 m_L_adx = [1 if m_DIPlus[idx] > m_DIMinus[idx] and m_ADX[idx] > th else 0 for idx in range(len(m_DIPlus))]
 m_S_adx = [1 if m_DIPlus[idx] < m_DIMinus[idx] and m_ADX[idx] > th else 0 for idx in range(len(m_DIPlus))]
 
+# RSI ============================================================================================================================================================================
+# m_up_3 = ta.rma(max(change(src_3), 0), len_3)
+
 
 exp_df = pd.DataFrame()
 exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['S_adx'] = list(tv_df['S_adx'])
+exp_df['up_3'] = list(tv_df['up_3'])
 exp_df['m_S_adx'] = m_S_adx
 # =ROUND(E2,1)=ROUND(F2,1)
 
