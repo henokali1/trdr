@@ -280,6 +280,7 @@ m_DIMinusC = ta_adx['DMN_9']
 m_ADXC = ta_adx['ADX_9']
 m_DIPlusM, m_DIMinusM, m_ADXM = calcADX_Masanakamura(ADX_len)
 m_DIPlus = m_DIPlusM
+m_DIMinus = m_DIMinusM
 
 
 exp_df = pd.DataFrame()
@@ -287,8 +288,8 @@ exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['DIPlus'] = list(tv_df['DIPlus'])
-exp_df['m_DIPlus'] = m_DIPlus
+exp_df['DIMinus'] = list(tv_df['DIMinus'])
+exp_df['m_DIMinus'] = m_DIMinus
 # =ROUND(E2,1)=ROUND(F2,1)
 
 
