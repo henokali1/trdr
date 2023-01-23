@@ -139,7 +139,7 @@ def nz(val):
     return 0 if val == None else val
 
 def calcADX_Masanakamura(_len):
-    SmoothedTrueRange = [0.0]
+    SmoothedTrueRange = [high_price[0]]
     SmoothedDirectionalMovementPlus = 0.0
     SmoothedDirectionalMovementMinus = 0.0
     TrueRange=[]
@@ -149,12 +149,11 @@ def calcADX_Masanakamura(_len):
         TrueRange.append(max(max(high_price[idx] - low_price[idx], abs(high_price[idx] - nz(close_price[idx-1]))), abs(low_price[idx] - nz(close_price[idx-1]))))
         DirectionalMovementPlus.append(max(high_price[idx] - nz(high_price[idx-1]), 0) if high_price[idx] - nz(high_price[idx-1]) > nz(low_price[idx-1]) - low_price[idx] else 0)
         DirectionalMovementMinus.append(max(nz(low_price[idx-1]) - low_price[idx], 0) if (nz(low_price[idx-1]) - low_price[idx]) > (high_price[idx] - nz(high_price[idx-1])) else 0)
-        # SmoothedTrueRange := nz(SmoothedTrueRange[1]) - (nz(SmoothedTrueRange[1]) /_len) + TrueRange
-        SmoothedTrueRange.append(nz(SmoothedTrueRange[idx-1]) - (nz(SmoothedTrueRange[idx-1]) /_len) + TrueRange[idx])
+        if idx > 0:
+            SmoothedTrueRange.append(nz(SmoothedTrueRange[idx-1]) - (nz(SmoothedTrueRange[idx-1]) /_len) + TrueRange[-1])
 
 
 
-    SmoothedTrueRange.pop()
     return SmoothedTrueRange
 
 
@@ -271,7 +270,7 @@ ta_adx = ta.adx(tv_df['high'], tv_df['low'], tv_df['close'], ADX_len)
 m_DIPlusC = ta_adx['DMP_9']
 m_DIMinusC = ta_adx['DMN_9']
 m_ADXC = ta_adx['ADX_9']
-m_tv_TrueRange = calcADX_Masanakamura(ADX_len)
+m_SmoothedTrueRange = calcADX_Masanakamura(ADX_len)
 
 
 exp_df = pd.DataFrame()
@@ -280,7 +279,7 @@ exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
 exp_df['tv_SmoothedTrueRange'] = list(tv_df['tv_SmoothedTrueRange'])
-exp_df['m_tv_TrueRange'] = m_tv_TrueRange
+exp_df['m_SmoothedTrueRange'] = m_SmoothedTrueRange
 
 
 exp_fn = f'{downloads_path}\\exp_df.csv'
