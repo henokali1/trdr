@@ -147,6 +147,7 @@ def calcADX_Masanakamura(_len):
     DirectionalMovementMinus = []
     DIP=[]
     DIM=[]
+    DX=[]
     for idx in range(len(high_price)):
         TrueRange.append(max(max(high_price[idx] - low_price[idx], abs(high_price[idx] - nz(close_price[idx-1]))), abs(low_price[idx] - nz(close_price[idx-1]))))
         DirectionalMovementPlus.append(max(high_price[idx] - nz(high_price[idx-1]), 0) if high_price[idx] - nz(high_price[idx-1]) > nz(low_price[idx-1]) - low_price[idx] else 0)
@@ -157,10 +158,11 @@ def calcADX_Masanakamura(_len):
             SmoothedDirectionalMovementMinus.append(nz(SmoothedDirectionalMovementMinus[idx-1]) - (nz(SmoothedDirectionalMovementMinus[idx-1]) / _len) + DirectionalMovementMinus[idx])
         DIP.append(SmoothedDirectionalMovementPlus[idx]  / SmoothedTrueRange[idx] * 100)
         DIM.append(SmoothedDirectionalMovementMinus[idx] / SmoothedTrueRange[idx] * 100)
+        DX.append(abs(DIP[idx]-DIM[idx]) / (DIP[idx]+DIM[idx])*100)
 
 
 
-    return DIM
+    return DX
 
 
 
@@ -276,7 +278,7 @@ ta_adx = ta.adx(tv_df['high'], tv_df['low'], tv_df['close'], ADX_len)
 m_DIPlusC = ta_adx['DMP_9']
 m_DIMinusC = ta_adx['DMN_9']
 m_ADXC = ta_adx['ADX_9']
-m_DIM = calcADX_Masanakamura(ADX_len)
+m_DX = calcADX_Masanakamura(ADX_len)
 
 
 exp_df = pd.DataFrame()
@@ -284,8 +286,8 @@ exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['tv_DIM'] = list(tv_df['tv_DIM'])
-exp_df['m_DIM'] = m_DIM
+exp_df['tv_DX'] = list(tv_df['tv_DX'])
+exp_df['m_DX'] = m_DX
 # =ROUND(E2,1)=ROUND(F2,1)
 
 
