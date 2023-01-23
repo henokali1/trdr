@@ -139,6 +139,7 @@ def nz(val):
     return 0 if val == None else val
 
 def calcADX_Masanakamura(_len):
+    DX_df = pd.DataFrame()
     SmoothedTrueRange = [high_price[0]]
     SmoothedDirectionalMovementPlus = [high_price[0]]
     SmoothedDirectionalMovementMinus = [0]
@@ -159,10 +160,9 @@ def calcADX_Masanakamura(_len):
         DIP.append(SmoothedDirectionalMovementPlus[idx]  / SmoothedTrueRange[idx] * 100)
         DIM.append(SmoothedDirectionalMovementMinus[idx] / SmoothedTrueRange[idx] * 100)
         DX.append(abs(DIP[idx]-DIM[idx]) / (DIP[idx]+DIM[idx])*100)
-
-
-
-    return DX
+    DX_df['close']=DX
+    adx = ta.sma(DX_df['close'], _len)
+    return DIP,DIM,adx
 
 
 
@@ -278,7 +278,7 @@ ta_adx = ta.adx(tv_df['high'], tv_df['low'], tv_df['close'], ADX_len)
 m_DIPlusC = ta_adx['DMP_9']
 m_DIMinusC = ta_adx['DMN_9']
 m_ADXC = ta_adx['ADX_9']
-m_DX = calcADX_Masanakamura(ADX_len)
+m_DIPlusM, m_DIMinusM, m_ADXM = calcADX_Masanakamura(ADX_len)
 
 
 exp_df = pd.DataFrame()
@@ -286,9 +286,15 @@ exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['tv_DX'] = list(tv_df['tv_DX'])
-exp_df['m_DX'] = m_DX
+exp_df['DIPlusM'] = list(tv_df['DIPlusM'])
+exp_df['m_DIPlusM'] = m_DIPlusM
+exp_df['DIMinusM'] = list(tv_df['DIMinusM'])
+exp_df['m_DIMinusM'] = m_DIMinusM
+exp_df['ADXM'] = list(tv_df['ADXM'])
+exp_df['m_ADXM'] = m_ADXM
 # =ROUND(E2,1)=ROUND(F2,1)
+
+
 
 
 exp_fn = f'{downloads_path}\\exp_df.csv'
