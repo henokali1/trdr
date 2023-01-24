@@ -300,6 +300,7 @@ m_S_adx = [1 if m_DIPlus[idx] < m_DIMinus[idx] and m_ADX[idx] > th else 0 for id
 # RSI ============================================================================================================================================================================
 m_up_3 = get_up_3()
 m_down_3 = get_down_3()
+m_rsi_3 = [100 - (100 / (1 + m_up_3[idx] / m_down_3[idx])) if m_down_3[idx] != 0 and m_up_3[idx] != 0 else (100 if m_down_3[idx] == 0 else 0) for idx in range(len(m_up_3))]
 
 
 exp_df = pd.DataFrame()
@@ -307,8 +308,8 @@ exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['down_3'] = list(tv_df['down_3'])
-exp_df['m_down_3'] = m_down_3
+exp_df['rsi_3'] = list(tv_df['rsi_3'])
+exp_df['m_rsi_3'] = m_rsi_3
 # =ROUND(E2,1)=ROUND(F2,1)
 
 
