@@ -184,6 +184,7 @@ open_price = list(tv_df['open'])
 high_price = list(tv_df['high'])
 low_price = list(tv_df['low'])
 close_price = list(tv_df['close'])
+volume = list(tv_df['volume'])
 
 # SOURCE 
 m_hl2 = get_hl2(high_price, low_price)
@@ -305,13 +306,26 @@ m_L_rsi = [1 if m_rsi_3[i] < 70 else 0 for i in range(len(m_rsi_3))]
 m_S_rsi = [1 if m_rsi_3[i] > 30 else 0 for i in range(len(m_rsi_3))]
 
 # TREND STRENGHT ============================================================================================================================================================================
-m_ap = [(high_price[idx] + low_price[idx] + close_price[idx])/3 for idx in range(len(high_price))]
+m_hlc3 = [(high_price[idx] + low_price[idx] + close_price[idx])/3 for idx in range(len(high_price))]
+m_ap = m_hlc3
 m_esa = ta.ema(pd.DataFrame(m_ap, columns=['close'])['close'], n1)
 m_d = ta.ema(pd.DataFrame([abs(m_ap[idx]-m_esa[idx]) for idx in range(len(m_ap))], columns=['close'])['close'], n1)
 m_ci = [(m_ap[idx] - m_esa[idx]) / (0.015 * m_d[idx]) for idx in range(len(m_ap))]
 m_tci = ta.ema(pd.DataFrame(m_ci, columns=['close'])['close'], n2)
 m_wt1 = list(m_tci)
 m_wt2 = ta.sma(pd.DataFrame(m_wt1, columns=['close'])['close'],4)
+m_change_hlc3 = [change(m_hlc3[idx], m_hlc3[idx-1]) for idx in range(len(m_hlc3))]
+def bar_sum(lst, bars):
+    r=[]
+    for idx in range(len(lst)):
+        if idx < bars:
+            r.append(sum(lst[:idx]))
+        else:
+            r.append(sum(lst[idx-bars-1: idx]))
+    return r
+
+temp_cond = [0 if m_change_hlc3[idx] <= 0 else (volume[idx] * m_hlc3[idx]) for idx in range(len(m_change_hlc3))]
+m_mfi_upper = bar_sum(temp_cond, 58)
 
 
 
@@ -321,8 +335,12 @@ exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
 exp_df['mfi_upper'] = list(tv_df['mfi_upper'])
-exp_df['m_wt2'] = m_wt2
+exp_df['m_mfi_upper'] = m_mfi_upper
+
+
+
 # =ROUND(E2,1)=ROUND(F2,1)
+exp_df['chk'] = [f"=ROUND(E{idx+1},1)=ROUND(F{idx+1},1)" for idx in range(len(open_price))]
 
 
 
