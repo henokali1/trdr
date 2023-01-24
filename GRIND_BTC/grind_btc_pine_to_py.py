@@ -309,6 +309,7 @@ m_ap = [(high_price[idx] + low_price[idx] + close_price[idx])/3 for idx in range
 m_esa = ta.ema(pd.DataFrame(m_ap, columns=['close'])['close'], n1)
 m_d = ta.ema(pd.DataFrame([abs(m_ap[idx]-m_esa[idx]) for idx in range(len(m_ap))], columns=['close'])['close'], n1)
 m_ci = [(m_ap[idx] - m_esa[idx]) / (0.015 * m_d[idx]) for idx in range(len(m_ap))]
+m_tci = ta.ema(pd.DataFrame(m_ci, columns=['close'])['close'], n2)
 
 
 
@@ -317,8 +318,8 @@ exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['ci'] = list(tv_df['ci'])
-exp_df['m_ci'] = m_ci
+exp_df['tci'] = list(tv_df['tci'])
+exp_df['m_tci'] = m_tci
 # =ROUND(E2,1)=ROUND(F2,1)
 
 
