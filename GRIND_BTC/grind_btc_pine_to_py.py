@@ -304,14 +304,16 @@ m_rsi_3 = [100 - (100 / (1 + m_up_3[idx] / m_down_3[idx])) if m_down_3[idx] != 0
 m_L_rsi = [1 if m_rsi_3[i] < 70 else 0 for i in range(len(m_rsi_3))]
 m_S_rsi = [1 if m_rsi_3[i] > 30 else 0 for i in range(len(m_rsi_3))]
 
+# TREND STRENGHT ============================================================================================================================================================================
+m_ap = [(high_price[idx] + low_price[idx] + close_price[idx])/3 for idx in range(len(high_price))]
 
 exp_df = pd.DataFrame()
 exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['S_rsi'] = list(tv_df['S_rsi'])
-exp_df['m_S_rsi'] = m_S_rsi
+exp_df['ap'] = list(tv_df['ap'])
+exp_df['m_ap'] = m_ap
 # =ROUND(E2,1)=ROUND(F2,1)
 
 
