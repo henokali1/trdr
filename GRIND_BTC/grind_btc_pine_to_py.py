@@ -164,6 +164,13 @@ def calcADX_Masanakamura(_len):
     adx = ta.sma(DX_df['close'], _len)
     return DIP,DIM,adx
 
+def change(current, prev):
+    return current - prev
+
+def get_up_3():
+    max_change = [None] + [max(change(src_3[i], src_3[i-1]), 0) for i in range(1, len(src_3))]
+    df = pd.DataFrame(max_change, columns=['open'])
+    return ta.rma(df['open'], len_3)
 
 
 tv_df = pd.read_csv(tv_exp_fn)
@@ -286,7 +293,7 @@ m_L_adx = [1 if m_DIPlus[idx] > m_DIMinus[idx] and m_ADX[idx] > th else 0 for id
 m_S_adx = [1 if m_DIPlus[idx] < m_DIMinus[idx] and m_ADX[idx] > th else 0 for idx in range(len(m_DIPlus))]
 
 # RSI ============================================================================================================================================================================
-# m_up_3 = ta.rma(max(change(src_3), 0), len_3)
+m_up_3 = get_up_3()
 
 
 exp_df = pd.DataFrame()
@@ -295,7 +302,7 @@ exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
 exp_df['up_3'] = list(tv_df['up_3'])
-exp_df['m_S_adx'] = m_S_adx
+exp_df['m_up_3'] = m_up_3
 # =ROUND(E2,1)=ROUND(F2,1)
 
 
