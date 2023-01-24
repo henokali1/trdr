@@ -320,7 +320,7 @@ exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['wt2'] = list(tv_df['wt2'])
+exp_df['mfi_upper'] = list(tv_df['mfi_upper'])
 exp_df['m_wt2'] = m_wt2
 # =ROUND(E2,1)=ROUND(F2,1)
 
