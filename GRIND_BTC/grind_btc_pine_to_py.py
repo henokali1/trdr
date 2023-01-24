@@ -172,6 +172,11 @@ def get_up_3():
     df = pd.DataFrame(max_change, columns=['open'])
     return ta.rma(df['open'], len_3)
 
+def get_down_3():
+    max_change = [None] + [-1*min(change(src_3[i], src_3[i-1]), 0) for i in range(1, len(src_3))]
+    df = pd.DataFrame(max_change, columns=['open'])
+    return ta.rma(df['open'], len_3)
+
 
 tv_df = pd.read_csv(tv_exp_fn)
 os.remove(tv_exp_fn)
@@ -294,6 +299,7 @@ m_S_adx = [1 if m_DIPlus[idx] < m_DIMinus[idx] and m_ADX[idx] > th else 0 for id
 
 # RSI ============================================================================================================================================================================
 m_up_3 = get_up_3()
+m_down_3 = get_down_3()
 
 
 exp_df = pd.DataFrame()
@@ -301,8 +307,8 @@ exp_df['open'] = open_price
 exp_df['high'] = high_price
 exp_df['low'] = low_price
 exp_df['close'] = close_price
-exp_df['up_3'] = list(tv_df['up_3'])
-exp_df['m_up_3'] = m_up_3
+exp_df['down_3'] = list(tv_df['down_3'])
+exp_df['m_down_3'] = m_down_3
 # =ROUND(E2,1)=ROUND(F2,1)
 
 
