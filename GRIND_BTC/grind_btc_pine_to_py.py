@@ -366,7 +366,29 @@ m_L_s_ma = [1 if MA_speed > 0 else 0 for MA_speed in m_MA_speed]
 m_S_s_ma = [1 if MA_speed < 0 else 0 for MA_speed in m_MA_speed]
 
 # SAR  =====================================================================================================================================================================================
-# psar = sar(start, increment, maximum)
+def pine_sar(start, inc, max):
+    result = []
+    r = 0
+    maxMin = 0
+    acceleration = 0
+    isBelow = 0
+    isFirstTrendBar = False
+    
+    for bar_index in range(len(close_price)):
+        if bar_index == 1:
+            if close_price[bar_index] > close_price[bar_index - 1]:
+                isBelow = True
+                maxMin = high_price[bar_index]
+                r = low_price[bar_index-1]
+            else:
+                isBelow = False
+                maxMin = low_price[bar_index]
+                r = high_price[bar_index -1]
+            isFirstTrendBar = True
+            acceleration = start
+        
+        result.append(r + acceleration * (maxMin - r))
+
 m_psar = ta.psar()
 
 
