@@ -331,11 +331,14 @@ m_mfi = [(mf - 50) * 3 for mf in m_mf]
 m_L_mfi = [1 if mfi > 8 else 0 for mfi in m_mfi]
 m_S_mfi= [1 if mfi < -8 else 0 for mfi in m_mfi]
 
+# Volume weight ============================================================================================================================================================================
+m_ma = ta.sma(pd.DataFrame(volume, columns=['close'])['close'],maLength)
+
 
 
 exp_df = pd.DataFrame()
-exp_df['S_mfi'] = list(tv_df['S_mfi'])
-exp_df['m_S_mfi'] = m_S_mfi
+exp_df['ma'] = list(tv_df['ma'])
+exp_df['m_ma'] = m_ma
 
 
 
