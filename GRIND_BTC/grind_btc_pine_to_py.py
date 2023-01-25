@@ -346,11 +346,12 @@ m_S_jma= [1 if val < 0 else 0 for val in m_sig]
 # MACD  =====================================================================================================================================================================================
 m_fast_ma = ta.ema(pd.DataFrame(m_src, columns=['close'])['close'], fast_length)
 m_slow_ma = ta.ema(pd.DataFrame(m_src, columns=['close'])['close'], slow_length)
+m_macd = [m_fast_ma[idx] - m_slow_ma[idx] for idx in range(len(m_fast_ma))]
 
 
 exp_df = pd.DataFrame()
-exp_df['slow_ma'] = list(tv_df['slow_ma'])
-exp_df['m_slow_ma'] = m_slow_ma
+exp_df['macd'] = list(tv_df['macd'])
+exp_df['m_macd'] = m_macd
 
 
 
