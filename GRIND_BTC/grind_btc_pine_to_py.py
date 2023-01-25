@@ -399,13 +399,15 @@ m_L_sar = [1 if val == 1 else 0 for val in m_dir]
 m_S_sar = [1 if val == -1 else 0 for val in m_dir]
 
 # Volume Delta  =====================================================================================================================================================================================
-m_bullPower = [0] + get_bullPower()
-m_bearPower = [0] + get_bearPower()
+m_bullPower = [0.001] + get_bullPower()
+m_bearPower = [0.001] + get_bearPower()
+m_bullVolume = [(m_bullPower[idx] / (m_bullPower[idx] + m_bearPower[idx])) * volume[idx] for idx in range(len(m_bearPower))]
+
 
 
 exp_df = pd.DataFrame()
-exp_df['bearPower'] = list(tv_df['bearPower'])
-exp_df['m_bearPower'] = m_bearPower
+exp_df['bullVolume'] = list(tv_df['bullVolume'])
+exp_df['m_bullVolume'] = m_bullVolume
 
 
 
