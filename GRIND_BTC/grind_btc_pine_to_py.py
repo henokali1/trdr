@@ -12,7 +12,7 @@ def get_hl2(high_price, low_price):
     return r
 
 def get_src0(close_price):
-    return [None] + close_price[:-1]
+    return [0] + close_price[:-1]
 
 def get_isRegularFractal(mode):
     ret = []
@@ -337,12 +337,13 @@ m_rvol = [volume[idx] / m_ma[idx] for idx in range(len(volume))]
 m_volumegood = [1 if volume[idx] > rvolTrigger * m_ma[idx] else 0 for idx in range(len(volume))]
 
 # JMA  ============================================================================================================================================================================def get_jsa():
-m_jsa = [(val + m_src0[idx-lengths])/2 if idx > lengths else None for idx, val in enumerate(m_src0)]
+m_jsa = [(val + m_src0[idx-lengths])/2 if idx > lengths else 0 for idx, val in enumerate(m_src0)]
+m_sig = [1 if m_src0[idx] > m_jsa[idx] else -1 if m_src0[idx] < m_jsa[idx] else 0 for idx in range(min(len(m_src0), len(m_jsa))) ]
 
 
 exp_df = pd.DataFrame()
-exp_df['jsa'] = list(tv_df['jsa'])
-exp_df['m_jsa'] = m_jsa
+exp_df['sig'] = list(tv_df['sig'])
+exp_df['m_sig'] = m_sig
 
 
 
