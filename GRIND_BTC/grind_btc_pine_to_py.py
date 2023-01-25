@@ -364,43 +364,21 @@ m_avgval = m_simplema
 m_MA_speed = [0] + [(b/a - 1)*100 for a, b in zip(m_avgval, m_avgval[1:])]
 m_L_s_ma = [1 if MA_speed > 0 else 0 for MA_speed in m_MA_speed]
 m_S_s_ma = [1 if MA_speed < 0 else 0 for MA_speed in m_MA_speed]
-
+ta.psar
 # SAR  =====================================================================================================================================================================================
-def pine_sar(start, inc, max):
-    result = []
-    r = 0
-    maxMin = 0
-    acceleration = 0
-    isBelow = 0
-    isFirstTrendBar = False
-    
-    for bar_index in range(len(close_price)):
-        if bar_index == 1:
-            if close_price[bar_index] > close_price[bar_index - 1]:
-                isBelow = True
-                maxMin = high_price[bar_index]
-                r = low_price[bar_index-1]
-            else:
-                isBelow = False
-                maxMin = low_price[bar_index]
-                r = high_price[bar_index -1]
-            isFirstTrendBar = True
-            acceleration = start
-        
-        result.append(r + acceleration * (maxMin - r))
-
-m_psar = ta.psar()
-
+m_psar = list(tv_df['psar'])
+m_dir = [1 if m_psar[idx] < close_price[idx] else -1 for idx in range(len(close_price))]
 
 
 exp_df = pd.DataFrame()
-exp_df['psar'] = list(tv_df['psar'])
-exp_df['m_psar'] = m_psar
+exp_df['dir'] = list(tv_df['dir'])
+exp_df['m_dir'] = m_dir
+
 
 
 
 # =ROUND(E2,1)=ROUND(F2,1)
-exp_df['chk'] = [f"=ROUND(A{idx+1},1)=ROUND(B{idx+1},1)" for idx in range(len(open_price))]
+exp_df['chk'] = [f"=ROUND(A{idx+2},1)=ROUND(B{idx+2},1)" for idx in range(len(open_price))]
 
 
 
