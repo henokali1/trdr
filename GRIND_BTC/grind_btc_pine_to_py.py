@@ -371,10 +371,25 @@ m_dir = [1 if m_psar[idx] < close_price[idx] else -1 for idx in range(len(close_
 m_L_sar = [1 if val == 1 else 0 for val in m_dir]
 m_S_sar = [1 if val == -1 else 0 for val in m_dir]
 
+# Volume Delta  =====================================================================================================================================================================================
+def get_bullPower():
+    bull_power = []
+    for i in range(1, len(open_price)):
+        if close_price[i] > open_price[i]:
+            bull_power.append(high_price[i] - low_price[i])
+        elif close_price[i-1] < open_price[i]:
+            bull_power.append(max(high_price[i] - close_price[i-1], close_price[i] - low_price[i]))
+        else:
+            bull_power.append(max(high_price[i] - open_price[i], close_price[i] - low_price[i]))
+    return bull_power
 
+
+
+m_bullPower = [0] + get_bullPower()
+print(len(m_bullPower), len(open_price))
 exp_df = pd.DataFrame()
-exp_df['S_sar'] = list(tv_df['S_sar'])
-exp_df['m_S_sar'] = m_S_sar
+exp_df['bullPower'] = list(tv_df['bullPower'])
+exp_df['m_bullPower'] = m_bullPower
 
 
 
