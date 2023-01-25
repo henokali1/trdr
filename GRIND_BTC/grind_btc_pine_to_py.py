@@ -327,12 +327,13 @@ m_prod_lower = [0 if m_change_hlc3[idx] >= 0 else (volume[idx] * m_hlc3[idx]) fo
 m_mfi_upper = bar_sum(m_prod_upper, 58)
 m_mfi_lower = bar_sum(m_prod_lower, 58)
 m_mf = [100.0 - (100.0 / (1.0 + m_mfi_upper[idx] / m_mfi_lower[idx])) for idx in range(len(m_mfi_upper))]
+m_mfi = [(mf - 50) * 3 for mf in m_mf]
 
 
 
 exp_df = pd.DataFrame()
-exp_df['mf'] = list(tv_df['mf'])
-exp_df['m_mf'] = m_mf
+exp_df['mfi'] = list(tv_df['mfi'])
+exp_df['m_mfi'] = m_mfi
 
 
 
