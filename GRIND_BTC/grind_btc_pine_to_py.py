@@ -348,12 +348,12 @@ m_fast_ma = ta.ema(pd.DataFrame(m_src, columns=['close'])['close'], fast_length)
 m_slow_ma = ta.ema(pd.DataFrame(m_src, columns=['close'])['close'], slow_length)
 m_macd = [m_fast_ma[idx] - m_slow_ma[idx] for idx in range(len(m_fast_ma))]
 m_signal_ = ta.sma(pd.DataFrame(m_macd, columns=['close'])['close'], signal_length)
-# sma(macd, signal_length)
+m_L_macd = [1 if m_macd[idx] > m_signal_[idx] else 0 for idx in range(len(m_macd))]
 
 
 exp_df = pd.DataFrame()
-exp_df['signal_'] = list(tv_df['signal_'])
-exp_df['m_signal_'] = m_signal_
+exp_df['L_macd'] = list(tv_df['L_macd'])
+exp_df['m_L_macd'] = m_L_macd
 
 
 
