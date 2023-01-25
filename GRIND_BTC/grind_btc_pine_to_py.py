@@ -181,6 +181,7 @@ def bar_sum(lst, bars):
     return [sum(lst[max(0, idx-bars):idx]) for idx in range(1, len(lst) + 1)]
 
 
+
 tv_df = pd.read_csv(tv_exp_fn)
 os.remove(tv_exp_fn)
 open_price = list(tv_df['open'])
@@ -325,12 +326,13 @@ m_prod_upper = [0 if m_change_hlc3[idx] <= 0 else (volume[idx] * m_hlc3[idx]) fo
 m_prod_lower = [0 if m_change_hlc3[idx] >= 0 else (volume[idx] * m_hlc3[idx]) for idx in range(len(m_change_hlc3))]
 m_mfi_upper = bar_sum(m_prod_upper, 58)
 m_mfi_lower = bar_sum(m_prod_lower, 58)
+m_mf = [100.0 - (100.0 / (1.0 + m_mfi_upper[idx] / m_mfi_lower[idx])) for idx in range(len(m_mfi_upper))]
 
 
 
 exp_df = pd.DataFrame()
-exp_df['mfi_lower'] = list(tv_df['mfi_lower'])
-exp_df['m_mfi_lower'] = m_mfi_lower
+exp_df['mf'] = list(tv_df['mf'])
+exp_df['m_mf'] = m_mf
 
 
 
