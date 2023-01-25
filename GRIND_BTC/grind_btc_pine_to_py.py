@@ -211,7 +211,7 @@ src_3 = open_price
 # Volume weight
 maLength = 51
 maType = 'SMA'
-rvolTrigger = '1.3'
+rvolTrigger = 1.3
 
 # TREND STRENGHT
 n1 = 10
@@ -334,12 +334,15 @@ m_S_mfi= [1 if mfi < -8 else 0 for mfi in m_mfi]
 # Volume weight ============================================================================================================================================================================
 m_ma = ta.sma(pd.DataFrame(volume, columns=['close'])['close'],maLength)
 m_rvol = [volume[idx] / m_ma[idx] for idx in range(len(volume))]
+m_volumegood = [1 if volume[idx] > rvolTrigger * m_ma[idx] else 0 for idx in range(len(volume))]
+
+# JMA  ============================================================================================================================================================================
 
 
 
 exp_df = pd.DataFrame()
-exp_df['rvol'] = list(tv_df['rvol'])
-exp_df['m_rvol'] = m_rvol
+exp_df['volumegood'] = list(tv_df['volumegood'])
+exp_df['m_volumegood'] = m_volumegood
 
 
 
