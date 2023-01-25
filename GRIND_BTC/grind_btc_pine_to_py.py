@@ -180,6 +180,33 @@ def get_down_3():
 def bar_sum(lst, bars):
     return [sum(lst[max(0, idx-bars):idx]) for idx in range(1, len(lst) + 1)]
 
+def get_bullPower():
+    bull_power = []
+    for i in range(1, len(open_price)):
+        if close_price[i] > open_price[i]:
+            bull_power.append(high_price[i] - low_price[i])
+        elif close_price[i-1] < open_price[i]:
+            bull_power.append(max(high_price[i] - close_price[i-1], close_price[i] - low_price[i]))
+        else:
+            bull_power.append(max(high_price[i] - open_price[i], close_price[i] - low_price[i]))
+    return bull_power
+
+def get_bearPower():
+    bear_power = []
+    for i in range(1, len(open_price)):
+        if close_price[i] < open_price[i]:
+            if close_price[i-1] > open_price[i]:
+                bear_power.append(max(close_price[i-1] - open_price[i], high_price[i] - low_price[i]))
+            else:
+                bear_power.append(high_price[i] - low_price[i])
+        elif close_price[i] > open_price[i]:
+            if close_price[i-1] > open_price[i]:
+                bear_power.append(max(close_price[i-1] - low_price[i], high_price[i] - close_price[i]))
+            else:
+                bear_power.append(max(open_price[i] - low_price[i], high_price[i] - close_price[i]))
+    return bear_power
+
+
 
 
 tv_df = pd.read_csv(tv_exp_fn)
@@ -372,24 +399,13 @@ m_L_sar = [1 if val == 1 else 0 for val in m_dir]
 m_S_sar = [1 if val == -1 else 0 for val in m_dir]
 
 # Volume Delta  =====================================================================================================================================================================================
-def get_bullPower():
-    bull_power = []
-    for i in range(1, len(open_price)):
-        if close_price[i] > open_price[i]:
-            bull_power.append(high_price[i] - low_price[i])
-        elif close_price[i-1] < open_price[i]:
-            bull_power.append(max(high_price[i] - close_price[i-1], close_price[i] - low_price[i]))
-        else:
-            bull_power.append(max(high_price[i] - open_price[i], close_price[i] - low_price[i]))
-    return bull_power
-
-
-
 m_bullPower = [0] + get_bullPower()
-print(len(m_bullPower), len(open_price))
+m_bearPower = [0] + get_bearPower()
+
+
 exp_df = pd.DataFrame()
-exp_df['bullPower'] = list(tv_df['bullPower'])
-exp_df['m_bullPower'] = m_bullPower
+exp_df['bearPower'] = list(tv_df['bearPower'])
+exp_df['m_bearPower'] = m_bearPower
 
 
 
