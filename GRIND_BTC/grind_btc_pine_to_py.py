@@ -333,12 +333,13 @@ m_S_mfi= [1 if mfi < -8 else 0 for mfi in m_mfi]
 
 # Volume weight ============================================================================================================================================================================
 m_ma = ta.sma(pd.DataFrame(volume, columns=['close'])['close'],maLength)
+m_rvol = [volume[idx] / m_ma[idx] for idx in range(len(volume))]
 
 
 
 exp_df = pd.DataFrame()
-exp_df['ma'] = list(tv_df['ma'])
-exp_df['m_ma'] = m_ma
+exp_df['rvol'] = list(tv_df['rvol'])
+exp_df['m_rvol'] = m_rvol
 
 
 
