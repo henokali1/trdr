@@ -360,12 +360,13 @@ w2 = ta.wma(pd.DataFrame(m_src, columns=['close'])['close'], length)
 m_hullma = ta.wma(pd.DataFrame([2*w1[idx] - w2[idx] for idx in range(len(w1))], columns=['close'])['close'], round(np.sqrt(length)))
 m_weightedma = ta.wma(pd.DataFrame(m_src, columns=['close'])['close'], length)
 m_volweightedma = ta.vwma(pd.DataFrame(m_src, columns=['close'])['close'], pd.DataFrame(volume, columns=['volume'])['volume'], length)
+m_avgval = m_simplema
 
 
 
 exp_df = pd.DataFrame()
-exp_df['volweightedma'] = list(tv_df['volweightedma'])
-exp_df['m_volweightedma'] = m_volweightedma
+exp_df['avgval'] = list(tv_df['avgval'])
+exp_df['m_avgval'] = m_avgval
 
 
 
