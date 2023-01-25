@@ -361,12 +361,14 @@ m_hullma = ta.wma(pd.DataFrame([2*w1[idx] - w2[idx] for idx in range(len(w1))], 
 m_weightedma = ta.wma(pd.DataFrame(m_src, columns=['close'])['close'], length)
 m_volweightedma = ta.vwma(pd.DataFrame(m_src, columns=['close'])['close'], pd.DataFrame(volume, columns=['volume'])['volume'], length)
 m_avgval = m_simplema
+m_MA_speed = [0] + [(b/a - 1)*100 for a, b in zip(m_avgval, m_avgval[1:])]
+
 
 
 
 exp_df = pd.DataFrame()
-exp_df['avgval'] = list(tv_df['avgval'])
-exp_df['m_avgval'] = m_avgval
+exp_df['MA_speed'] = list(tv_df['MA_speed'])
+exp_df['m_MA_speed'] = m_MA_speed
 
 
 
