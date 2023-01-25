@@ -177,6 +177,9 @@ def get_down_3():
     df = pd.DataFrame(max_change, columns=['open'])
     return ta.rma(df['open'], len_3)
 
+def bar_sum(lst, bars):
+    return [sum(lst[max(0, idx-bars):idx]) for idx in range(1, len(lst) + 1)]
+
 
 tv_df = pd.read_csv(tv_exp_fn)
 os.remove(tv_exp_fn)
@@ -315,32 +318,22 @@ m_tci = ta.ema(pd.DataFrame(m_ci, columns=['close'])['close'], n2)
 m_wt1 = list(m_tci)
 m_wt2 = ta.sma(pd.DataFrame(m_wt1, columns=['close'])['close'],4)
 m_change_hlc3 = [change(m_hlc3[idx], m_hlc3[idx-1]) for idx in range(len(m_hlc3))]
-def bar_sum(lst, bars):
-    r=[]
-    for idx in range(len(lst)):
-        if idx < bars:
-            r.append(sum(lst[:idx]))
-        else:
-            r.append(sum(lst[idx-bars-1: idx]))
-    return r
 
-temp_cond = [0 if m_change_hlc3[idx] <= 0 else (volume[idx] * m_hlc3[idx]) for idx in range(len(m_change_hlc3))]
-m_mfi_upper = bar_sum(temp_cond, 58)
+
+
+m_prod = [0 if m_change_hlc3[idx] <= 0 else (volume[idx] * m_hlc3[idx]) for idx in range(len(m_change_hlc3))]
+m_mfi_upper = bar_sum(m_prod, 58)
 
 
 
 exp_df = pd.DataFrame()
-exp_df['open'] = open_price
-exp_df['high'] = high_price
-exp_df['low'] = low_price
-exp_df['close'] = close_price
 exp_df['mfi_upper'] = list(tv_df['mfi_upper'])
 exp_df['m_mfi_upper'] = m_mfi_upper
 
 
 
 # =ROUND(E2,1)=ROUND(F2,1)
-exp_df['chk'] = [f"=ROUND(E{idx+1},1)=ROUND(F{idx+1},1)" for idx in range(len(open_price))]
+exp_df['chk'] = [f"=ROUND(A{idx+1},1)=ROUND(B{idx+1},1)" for idx in range(len(open_price))]
 
 
 
