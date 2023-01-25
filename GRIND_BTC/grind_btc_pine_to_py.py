@@ -362,13 +362,15 @@ m_weightedma = ta.wma(pd.DataFrame(m_src, columns=['close'])['close'], length)
 m_volweightedma = ta.vwma(pd.DataFrame(m_src, columns=['close'])['close'], pd.DataFrame(volume, columns=['volume'])['volume'], length)
 m_avgval = m_simplema
 m_MA_speed = [0] + [(b/a - 1)*100 for a, b in zip(m_avgval, m_avgval[1:])]
+m_L_s_ma = [1 if MA_speed > 0 else 0 for MA_speed in m_MA_speed]
+m_S_s_ma = [1 if MA_speed < 0 else 0 for MA_speed in m_MA_speed]
 
 
 
 
 exp_df = pd.DataFrame()
-exp_df['MA_speed'] = list(tv_df['MA_speed'])
-exp_df['m_MA_speed'] = m_MA_speed
+exp_df['S_s_ma'] = list(tv_df['S_s_ma'])
+exp_df['m_S_s_ma'] = m_S_s_ma
 
 
 
