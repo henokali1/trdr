@@ -231,6 +231,7 @@ slow_length = 4
 signal_length = 7
 
 # MA
+length = 55
 start = 0.011
 increment = 0.006
 maximum = 0.08
@@ -351,10 +352,14 @@ m_signal_ = ta.sma(pd.DataFrame(m_macd, columns=['close'])['close'], signal_leng
 m_L_macd = [1 if m_macd[idx] > m_signal_[idx] else 0 for idx in range(len(m_macd))]
 m_S_macd = [1 if m_macd[idx] < m_signal_[idx] else 0 for idx in range(len(m_macd))]
 
+# MA  =====================================================================================================================================================================================
+m_simplema = ta.sma(pd.DataFrame(m_src, columns=['close'])['close'], length)
+
+
 
 exp_df = pd.DataFrame()
-exp_df['S_macd'] = list(tv_df['S_macd'])
-exp_df['m_S_macd'] = m_S_macd
+exp_df['simplema'] = list(tv_df['simplema'])
+exp_df['m_simplema'] = m_simplema
 
 
 
