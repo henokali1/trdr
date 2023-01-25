@@ -355,12 +355,15 @@ m_S_macd = [1 if m_macd[idx] < m_signal_[idx] else 0 for idx in range(len(m_macd
 # MA  =====================================================================================================================================================================================
 m_simplema = ta.sma(pd.DataFrame(m_src, columns=['close'])['close'], length)
 m_exponentialma = ta.ema(pd.DataFrame(m_src, columns=['close'])['close'], length)
+w1 = ta.wma(pd.DataFrame(m_src, columns=['close'])['close'], length/2)
+w2 = ta.wma(pd.DataFrame(m_src, columns=['close'])['close'], length)
+m_hullma = ta.wma(pd.DataFrame([2*w1[idx] - w2[idx] for idx in range(len(w1))], columns=['close'])['close'], round(np.sqrt(length)))
 
 
 
 exp_df = pd.DataFrame()
-exp_df['exponentialma'] = list(tv_df['exponentialma'])
-exp_df['m_exponentialma'] = m_exponentialma
+exp_df['hullma'] = list(tv_df['hullma'])
+exp_df['m_hullma'] = m_hullma
 
 
 
