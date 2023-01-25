@@ -328,12 +328,13 @@ m_mfi_upper = bar_sum(m_prod_upper, 58)
 m_mfi_lower = bar_sum(m_prod_lower, 58)
 m_mf = [100.0 - (100.0 / (1.0 + m_mfi_upper[idx] / m_mfi_lower[idx])) for idx in range(len(m_mfi_upper))]
 m_mfi = [(mf - 50) * 3 for mf in m_mf]
+m_L_mfi = [1 if mfi > 8 else 0 for mfi in m_mfi]
 
 
 
 exp_df = pd.DataFrame()
-exp_df['mfi'] = list(tv_df['mfi'])
-exp_df['m_mfi'] = m_mfi
+exp_df['L_mfi'] = list(tv_df['L_mfi'])
+exp_df['m_L_mfi'] = m_L_mfi
 
 
 
