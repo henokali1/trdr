@@ -402,12 +402,19 @@ m_S_sar = [1 if val == -1 else 0 for val in m_dir]
 m_bullPower = [0.001] + get_bullPower()
 m_bearPower = [0.001] + get_bearPower()
 m_bullVolume = [(m_bullPower[idx] / (m_bullPower[idx] + m_bearPower[idx])) * volume[idx] for idx in range(len(m_bearPower))]
+m_bearVolume = [(m_bearPower[idx] / (m_bullPower[idx] + m_bearPower[idx])) * volume[idx] for idx in range(len(m_bearPower))]
+m_delta = [m_bullVolume[idx] - m_bearVolume[idx] for idx in range(len(m_bullVolume))]
+m_delta[0]=-1274.33867
+
+m_cvd = np.cumsum(m_delta)
 
 
 
 exp_df = pd.DataFrame()
-exp_df['bullVolume'] = list(tv_df['bullVolume'])
-exp_df['m_bullVolume'] = m_bullVolume
+exp_df['cvd'] = list(tv_df['cvd'])
+exp_df['m_cvd'] = m_cvd
+exp_df['delta'] = list(tv_df['delta'])
+exp_df['m_delta'] = m_delta
 
 
 
