@@ -7,7 +7,7 @@ from pathlib import Path
 downloads_path = str(Path.home() / "Downloads")
 tv_exp_fn = f'{downloads_path}\\BINANCE_BTCUSDTPERP, 15.csv'
 
-def get_hl2(high_price, low_price):
+def get_hl2():
     r=[(high_price[i] + low_price[i])/2 for i in range(len(high_price))]
     return r
 
@@ -191,7 +191,8 @@ close_price = list(tv_df['close'])
 volume = list(tv_df['volume'])
 
 # SOURCE 
-m_hl2 = get_hl2(high_price, low_price)
+m_hl2 = get_hl2()
+m_src = get_hl2()
 
 # INPUTS ========================================================================================================================================
 # POSITION
@@ -336,16 +337,19 @@ m_ma = ta.sma(pd.DataFrame(volume, columns=['close'])['close'],maLength)
 m_rvol = [volume[idx] / m_ma[idx] for idx in range(len(volume))]
 m_volumegood = [1 if volume[idx] > rvolTrigger * m_ma[idx] else 0 for idx in range(len(volume))]
 
-# JMA  ============================================================================================================================================================================def get_jsa():
+# JMA  =====================================================================================================================================================================================
 m_jsa = [(val + m_src0[idx-lengths])/2 if idx > lengths else 0 for idx, val in enumerate(m_src0)]
 m_sig = [1 if m_src0[idx] > m_jsa[idx] else -1 if m_src0[idx] < m_jsa[idx] else 0 for idx in range(min(len(m_src0), len(m_jsa))) ]
 m_L_jma = [1 if val > 0 else 0 for val in m_sig]
 m_S_jma= [1 if val < 0 else 0 for val in m_sig]
 
+# MACD  =====================================================================================================================================================================================
+m_fast_ma = ta.ema(pd.DataFrame(m_src, columns=['close'])['close'], fast_length)
+
 
 exp_df = pd.DataFrame()
-exp_df['S_jma'] = list(tv_df['S_jma'])
-exp_df['m_S_jma'] = m_S_jma
+exp_df['fast_ma'] = list(tv_df['fast_ma'])
+exp_df['m_fast_ma'] = m_fast_ma
 
 
 
