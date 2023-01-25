@@ -354,12 +354,13 @@ m_S_macd = [1 if m_macd[idx] < m_signal_[idx] else 0 for idx in range(len(m_macd
 
 # MA  =====================================================================================================================================================================================
 m_simplema = ta.sma(pd.DataFrame(m_src, columns=['close'])['close'], length)
+m_exponentialma = ta.ema(pd.DataFrame(m_src, columns=['close'])['close'], length)
 
 
 
 exp_df = pd.DataFrame()
-exp_df['simplema'] = list(tv_df['simplema'])
-exp_df['m_simplema'] = m_simplema
+exp_df['exponentialma'] = list(tv_df['exponentialma'])
+exp_df['m_exponentialma'] = m_exponentialma
 
 
 
