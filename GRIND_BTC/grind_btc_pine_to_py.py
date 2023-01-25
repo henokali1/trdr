@@ -368,11 +368,12 @@ ta.psar
 # SAR  =====================================================================================================================================================================================
 m_psar = list(tv_df['psar'])
 m_dir = [1 if m_psar[idx] < close_price[idx] else -1 for idx in range(len(close_price))]
+m_L_sar = [1 if val == 1 else 0 for val in m_dir]
 
 
 exp_df = pd.DataFrame()
-exp_df['dir'] = list(tv_df['dir'])
-exp_df['m_dir'] = m_dir
+exp_df['L_sar'] = list(tv_df['L_sar'])
+exp_df['m_L_sar'] = m_L_sar
 
 
 
