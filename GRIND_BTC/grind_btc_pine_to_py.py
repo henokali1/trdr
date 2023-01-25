@@ -336,13 +336,13 @@ m_ma = ta.sma(pd.DataFrame(volume, columns=['close'])['close'],maLength)
 m_rvol = [volume[idx] / m_ma[idx] for idx in range(len(volume))]
 m_volumegood = [1 if volume[idx] > rvolTrigger * m_ma[idx] else 0 for idx in range(len(volume))]
 
-# JMA  ============================================================================================================================================================================
-
+# JMA  ============================================================================================================================================================================def get_jsa():
+m_jsa = [(val + m_src0[idx-lengths])/2 if idx > lengths else None for idx, val in enumerate(m_src0)]
 
 
 exp_df = pd.DataFrame()
-exp_df['volumegood'] = list(tv_df['volumegood'])
-exp_df['m_volumegood'] = m_volumegood
+exp_df['jsa'] = list(tv_df['jsa'])
+exp_df['m_jsa'] = m_jsa
 
 
 
