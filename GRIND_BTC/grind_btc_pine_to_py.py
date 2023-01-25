@@ -339,11 +339,12 @@ m_volumegood = [1 if volume[idx] > rvolTrigger * m_ma[idx] else 0 for idx in ran
 # JMA  ============================================================================================================================================================================def get_jsa():
 m_jsa = [(val + m_src0[idx-lengths])/2 if idx > lengths else 0 for idx, val in enumerate(m_src0)]
 m_sig = [1 if m_src0[idx] > m_jsa[idx] else -1 if m_src0[idx] < m_jsa[idx] else 0 for idx in range(min(len(m_src0), len(m_jsa))) ]
+m_L_jma = [1 if val > 0 else 0 for val in m_sig]
 
 
 exp_df = pd.DataFrame()
-exp_df['sig'] = list(tv_df['sig'])
-exp_df['m_sig'] = m_sig
+exp_df['L_jma'] = list(tv_df['L_jma'])
+exp_df['m_L_jma'] = m_L_jma
 
 
 
