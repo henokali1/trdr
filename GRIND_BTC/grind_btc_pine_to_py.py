@@ -365,12 +365,15 @@ m_MA_speed = [0] + [(b/a - 1)*100 for a, b in zip(m_avgval, m_avgval[1:])]
 m_L_s_ma = [1 if MA_speed > 0 else 0 for MA_speed in m_MA_speed]
 m_S_s_ma = [1 if MA_speed < 0 else 0 for MA_speed in m_MA_speed]
 
+# SAR  =====================================================================================================================================================================================
+# psar = sar(start, increment, maximum)
+m_psar = ta.psar()
 
 
 
 exp_df = pd.DataFrame()
-exp_df['S_s_ma'] = list(tv_df['S_s_ma'])
-exp_df['m_S_s_ma'] = m_S_s_ma
+exp_df['psar'] = list(tv_df['psar'])
+exp_df['m_psar'] = m_psar
 
 
 
