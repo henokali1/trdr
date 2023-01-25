@@ -347,11 +347,13 @@ m_S_jma= [1 if val < 0 else 0 for val in m_sig]
 m_fast_ma = ta.ema(pd.DataFrame(m_src, columns=['close'])['close'], fast_length)
 m_slow_ma = ta.ema(pd.DataFrame(m_src, columns=['close'])['close'], slow_length)
 m_macd = [m_fast_ma[idx] - m_slow_ma[idx] for idx in range(len(m_fast_ma))]
+m_signal_ = ta.sma(pd.DataFrame(m_macd, columns=['close'])['close'], signal_length)
+# sma(macd, signal_length)
 
 
 exp_df = pd.DataFrame()
-exp_df['macd'] = list(tv_df['macd'])
-exp_df['m_macd'] = m_macd
+exp_df['signal_'] = list(tv_df['signal_'])
+exp_df['m_signal_'] = m_signal_
 
 
 
