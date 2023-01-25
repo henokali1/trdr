@@ -321,14 +321,16 @@ m_change_hlc3 = [change(m_hlc3[idx], m_hlc3[idx-1]) for idx in range(len(m_hlc3)
 
 
 
-m_prod = [0 if m_change_hlc3[idx] <= 0 else (volume[idx] * m_hlc3[idx]) for idx in range(len(m_change_hlc3))]
-m_mfi_upper = bar_sum(m_prod, 58)
+m_prod_upper = [0 if m_change_hlc3[idx] <= 0 else (volume[idx] * m_hlc3[idx]) for idx in range(len(m_change_hlc3))]
+m_prod_lower = [0 if m_change_hlc3[idx] >= 0 else (volume[idx] * m_hlc3[idx]) for idx in range(len(m_change_hlc3))]
+m_mfi_upper = bar_sum(m_prod_upper, 58)
+m_mfi_lower = bar_sum(m_prod_lower, 58)
 
 
 
 exp_df = pd.DataFrame()
-exp_df['mfi_upper'] = list(tv_df['mfi_upper'])
-exp_df['m_mfi_upper'] = m_mfi_upper
+exp_df['mfi_lower'] = list(tv_df['mfi_lower'])
+exp_df['m_mfi_lower'] = m_mfi_lower
 
 
 
