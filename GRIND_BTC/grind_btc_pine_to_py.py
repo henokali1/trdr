@@ -212,6 +212,12 @@ def get_last_open_longCondition():
         last_open_longCondition.append(last_open_longCondition[-1] if not m_longCondition[idx] else close_price[idx-1])
     return last_open_longCondition
 
+def get_last_open_shortCondition():
+    last_open_shortCondition = [0]
+    for idx in range(1, len(m_shortCondition)):
+        last_open_shortCondition.append(last_open_shortCondition[-1] if not m_shortCondition[idx] else close_price[idx-1])
+    return last_open_shortCondition
+
 
 
 tv_df = pd.read_csv(tv_exp_fn)
@@ -434,12 +440,11 @@ m_shortCondition = list(tv_df['shortCondition'])
 
 # Price position =====================================================================================================================================================================================
 m_last_open_longCondition = get_last_open_longCondition()
-
-
+m_last_open_shortCondition = get_last_open_shortCondition()
 
 exp_df = pd.DataFrame()
-exp_df['last_open_longCondition'] = list(tv_df['last_open_longCondition'])
-exp_df['m_last_open_longCondition'] = m_last_open_longCondition
+exp_df['last_open_shortCondition'] = list(tv_df['last_open_shortCondition'])
+exp_df['m_last_open_shortCondition'] = m_last_open_shortCondition
 
 
 
