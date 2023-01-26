@@ -411,11 +411,12 @@ m_S_delta = [1 if cvd < cvdMa else 0 for cvd, cvdMa in zip(m_cvd, m_cvdMa)]
 
 # CONDITIONS  =====================================================================================================================================================================================
 m_L_scalp_condt = [1 if L_scalp and ACT_SCLP else 0 for L_scalp in m_L_scalp]
+m_S_scalp_condt = [1 if S_scalp and ACT_SCLP else 0 for S_scalp in m_S_scalp]
 
 
 exp_df = pd.DataFrame()
-exp_df['L_scalp_condt'] = list(tv_df['L_scalp_condt'])
-exp_df['m_L_scalp_condt'] = m_L_scalp_condt
+exp_df['S_scalp_condt'] = list(tv_df['S_scalp_condt'])
+exp_df['m_S_scalp_condt'] = m_S_scalp_condt
 
 
 
