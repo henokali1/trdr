@@ -409,11 +409,13 @@ m_cvdMa = ta.sma(pd.DataFrame(m_cvd, columns=['close'])['close'], periodMa)
 m_L_delta = [1 if cvd > cvdMa else 0 for cvd, cvdMa in zip(m_cvd, m_cvdMa)]
 m_S_delta = [1 if cvd < cvdMa else 0 for cvd, cvdMa in zip(m_cvd, m_cvdMa)]
 
+# CONDITIONS  =====================================================================================================================================================================================
+m_L_scalp_condt = [1 if L_scalp and ACT_SCLP else 0 for L_scalp in m_L_scalp]
 
 
 exp_df = pd.DataFrame()
-exp_df['S_delta'] = list(tv_df['S_delta'])
-exp_df['m_S_delta'] = m_S_delta
+exp_df['L_scalp_condt'] = list(tv_df['L_scalp_condt'])
+exp_df['m_L_scalp_condt'] = m_L_scalp_condt
 
 
 
