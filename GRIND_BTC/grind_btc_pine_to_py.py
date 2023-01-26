@@ -421,11 +421,12 @@ m_S_basic_condt = [1 if (m_S_adx[idx] and m_S_rsi[idx] and m_S_mfi[idx] and m_vo
 m_L_first_condt = [1 if (m_L_basic_condt[idx] or m_L_scalp_condt[idx] and m_L_adx[idx]) else 0 for idx in range(len(m_L_adx))]
 m_S_first_condt = [1 if (m_S_basic_condt[idx] or m_S_scalp_condt[idx] and m_S_adx[idx]) else 0 for idx in range(len(m_S_adx))]
 m_longCond = m_L_first_condt
+m_shortCond = m_S_first_condt
 
 
 exp_df = pd.DataFrame()
-exp_df['longCond'] = list(tv_df['longCond'])
-exp_df['m_longCond'] = m_longCond
+exp_df['shortCond'] = list(tv_df['shortCond'])
+exp_df['m_shortCond'] = m_shortCond
 
 
 
