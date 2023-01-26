@@ -441,10 +441,21 @@ m_shortCondition = list(tv_df['shortCondition'])
 # Price position =====================================================================================================================================================================================
 m_last_open_longCondition = get_last_open_longCondition()
 m_last_open_shortCondition = get_last_open_shortCondition()
+m_time = list(tv_df['time'])
+# longCondition ? time : nz(last_longCondition[1])
+def last_longCondition():
+    r=[0]
+    for idx in range(1,len(m_longCondition)):
+        if m_longCondition[idx]:
+            r.append(m_time[idx])
+        else:
+            r.append(r[-1])
+    return r
+m_last_longCondition = last_longCondition()
 
 exp_df = pd.DataFrame()
-exp_df['last_open_shortCondition'] = list(tv_df['last_open_shortCondition'])
-exp_df['m_last_open_shortCondition'] = m_last_open_shortCondition
+exp_df['last_longCondition'] = list(tv_df['last_longCondition'])
+exp_df['m_last_longCondition'] = m_last_longCondition
 
 
 
