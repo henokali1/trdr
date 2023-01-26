@@ -206,6 +206,11 @@ def get_bearPower():
                 bear_power.append(max(open_price[i] - low_price[i], high_price[i] - close_price[i]))
     return bear_power
 
+def get_last_open_longCondition():
+    last_open_longCondition = [0]
+    for idx in range(1, len(m_longCondition)):
+        last_open_longCondition.append(last_open_longCondition[-1] if not m_longCondition[idx] else close_price[idx-1])
+    return last_open_longCondition
 
 
 
@@ -427,14 +432,14 @@ m_CondIni_short = list(tv_df['CondIni_short'])
 m_longCondition = list(tv_df['longCondition'])
 m_shortCondition = list(tv_df['shortCondition'])
 
-m_shortCondition = [1 if(m_shortCond[idx-1] and nz(m_CondIni_short[idx-1]) == 1) else 0 for idx in range(len(m_CondIni_short))]
+# Price position =====================================================================================================================================================================================
+m_last_open_longCondition = get_last_open_longCondition()
 
 
 
-print(len(m_CondIni_long), len(m_shortCond))
 exp_df = pd.DataFrame()
-exp_df['shortCondition'] = list(tv_df['shortCondition'])
-exp_df['m_shortCondition'] = m_shortCondition
+exp_df['last_open_longCondition'] = list(tv_df['last_open_longCondition'])
+exp_df['m_last_open_longCondition'] = m_last_open_longCondition
 
 
 
