@@ -391,7 +391,7 @@ m_avgval = m_simplema
 m_MA_speed = [0] + [(b/a - 1)*100 for a, b in zip(m_avgval, m_avgval[1:])]
 m_L_s_ma = [1 if MA_speed > 0 else 0 for MA_speed in m_MA_speed]
 m_S_s_ma = [1 if MA_speed < 0 else 0 for MA_speed in m_MA_speed]
-ta.psar
+
 # SAR  =====================================================================================================================================================================================
 m_psar = list(tv_df['psar'])
 m_dir = [1 if m_psar[idx] < close_price[idx] else -1 for idx in range(len(close_price))]
@@ -422,11 +422,19 @@ m_L_first_condt = [1 if (m_L_basic_condt[idx] or m_L_scalp_condt[idx] and m_L_ad
 m_S_first_condt = [1 if (m_S_basic_condt[idx] or m_S_scalp_condt[idx] and m_S_adx[idx]) else 0 for idx in range(len(m_S_adx))]
 m_longCond = m_L_first_condt
 m_shortCond = m_S_first_condt
+m_CondIni_long = list(tv_df['CondIni_long'])
+m_CondIni_short = list(tv_df['CondIni_short'])
+m_longCondition = list(tv_df['longCondition'])
+m_shortCondition = list(tv_df['shortCondition'])
+
+m_shortCondition = [1 if(m_shortCond[idx-1] and nz(m_CondIni_short[idx-1]) == 1) else 0 for idx in range(len(m_CondIni_short))]
 
 
+
+print(len(m_CondIni_long), len(m_shortCond))
 exp_df = pd.DataFrame()
-exp_df['shortCond'] = list(tv_df['shortCond'])
-exp_df['m_shortCond'] = m_shortCond
+exp_df['shortCondition'] = list(tv_df['shortCondition'])
+exp_df['m_shortCondition'] = m_shortCondition
 
 
 
