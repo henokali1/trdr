@@ -406,13 +406,14 @@ m_bearVolume = [(m_bearPower[idx] / (m_bullPower[idx] + m_bearPower[idx])) * vol
 m_delta = [m_bullVolume[idx] - m_bearVolume[idx] for idx in range(len(m_bullVolume))]
 m_cvd = np.cumsum(m_delta)
 m_cvdMa = ta.sma(pd.DataFrame(m_cvd, columns=['close'])['close'], periodMa)
-m_L_delta = [1 if m_cvd[idx] > m_cvdMa[idx] else 0 for idx in range(len(m_cvdMa))]
+m_L_delta = [1 if cvd > cvdMa else 0 for cvd, cvdMa in zip(m_cvd, m_cvdMa)]
+m_S_delta = [1 if cvd < cvdMa else 0 for cvd, cvdMa in zip(m_cvd, m_cvdMa)]
 
 
 
 exp_df = pd.DataFrame()
-exp_df['L_delta'] = list(tv_df['L_delta'])
-exp_df['m_L_delta'] = m_L_delta
+exp_df['S_delta'] = list(tv_df['S_delta'])
+exp_df['m_S_delta'] = m_S_delta
 
 
 
