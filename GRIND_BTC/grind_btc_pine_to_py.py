@@ -182,7 +182,7 @@ def bar_sum(lst, bars):
 
 def get_bullPower():
     bull_power = []
-    for i in range(1, len(open_price)):
+    for i in range(len(open_price)):
         if close_price[i] > open_price[i]:
             bull_power.append(high_price[i] - low_price[i])
         elif close_price[i-1] < open_price[i]:
@@ -193,7 +193,7 @@ def get_bullPower():
 
 def get_bearPower():
     bear_power = []
-    for i in range(1, len(open_price)):
+    for i in range(len(open_price)):
         if close_price[i] < open_price[i]:
             if close_price[i-1] > open_price[i]:
                 bear_power.append(max(close_price[i-1] - open_price[i], high_price[i] - low_price[i]))
@@ -399,22 +399,21 @@ m_L_sar = [1 if val == 1 else 0 for val in m_dir]
 m_S_sar = [1 if val == -1 else 0 for val in m_dir]
 
 # Volume Delta  =====================================================================================================================================================================================
-m_bullPower = [0.001] + get_bullPower()
-m_bearPower = [0.001] + get_bearPower()
+m_bullPower = get_bullPower()
+m_bearPower = get_bearPower()
 m_bullVolume = [(m_bullPower[idx] / (m_bullPower[idx] + m_bearPower[idx])) * volume[idx] for idx in range(len(m_bearPower))]
 m_bearVolume = [(m_bearPower[idx] / (m_bullPower[idx] + m_bearPower[idx])) * volume[idx] for idx in range(len(m_bearPower))]
 m_delta = [m_bullVolume[idx] - m_bearVolume[idx] for idx in range(len(m_bullVolume))]
-m_delta[0]=-1274.33867
-
 m_cvd = np.cumsum(m_delta)
+m_cvdMa = ta.sma(pd.DataFrame(m_cvd, columns=['close'])['close'], periodMa)
+m_L_delta = [1 if m_cvd[idx] > m_cvdMa[idx] else 0 for idx in range(len(m_cvdMa))]
 
 
 
 exp_df = pd.DataFrame()
-exp_df['cvd'] = list(tv_df['cvd'])
-exp_df['m_cvd'] = m_cvd
-exp_df['delta'] = list(tv_df['delta'])
-exp_df['m_delta'] = m_delta
+exp_df['L_delta'] = list(tv_df['L_delta'])
+exp_df['m_L_delta'] = m_L_delta
+
 
 
 
