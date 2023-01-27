@@ -218,6 +218,18 @@ def get_last_open_shortCondition():
         last_open_shortCondition.append(last_open_shortCondition[-1] if not m_shortCondition[idx] else close_price[idx-1])
     return last_open_shortCondition
 
+def get_last_longCondition():
+    r=[0]
+    for idx in range(1, len(m_longCondition)):
+        r.append(int(m_time[idx])*1000 if m_longCondition[idx] else r[idx-1])
+    return r
+
+def get_last_shortCondition():
+    last_shortCondition=[0]
+    for idx in range(1, len(m_shortCondition)):
+        last_shortCondition.append(int(m_time[idx])*1000 if m_shortCondition[idx] else last_shortCondition[-1])
+    return last_shortCondition
+
 
 
 tv_df = pd.read_csv(tv_exp_fn)
@@ -442,27 +454,12 @@ m_shortCondition = list(tv_df['shortCondition'])
 m_last_open_longCondition = get_last_open_longCondition()
 m_last_open_shortCondition = get_last_open_shortCondition()
 m_time = list(tv_df['time'])
-# last_shortCondition := shortCondition ? time : nz(last_shortCondition[1])
+m_last_shortCondition=get_last_shortCondition()
 
-def get_last_shortCondition():
-    last_shortCondition=[0]
-    for idx in range(1, len(m_shortCondition)):
-        last_shortCondition.append(m_time[idx] if m_shortCondition[idx] else last_shortCondition[-1])
-    return last_shortCondition
-
-def get_last_longCondition():
-    r=[0]
-    for idx in range(1, len(m_longCondition)):
-        r.append(int(m_time[idx])*1000) if m_longCondition[idx] else r.append(r[idx-1])
-    return r
-
-m_last_longCondition=get_last_longCondition()
 
 exp_df = pd.DataFrame()
-exp_df['last_longCondition'] = list(tv_df['last_longCondition'])
-exp_df['m_last_longCondition'] = m_last_longCondition
-
-
+exp_df['last_shortCondition'] = list(tv_df['last_shortCondition'])
+exp_df['m_last_shortCondition'] = m_last_shortCondition
 
 
 
