@@ -454,12 +454,14 @@ m_shortCondition = list(tv_df['shortCondition'])
 m_last_open_longCondition = get_last_open_longCondition()
 m_last_open_shortCondition = get_last_open_shortCondition()
 m_time = list(tv_df['time'])
+m_last_longCondition = get_last_longCondition()
 m_last_shortCondition=get_last_shortCondition()
+m_in_longCondition = [1 if last_longCondition > last_shortCondition else 0 for last_longCondition, last_shortCondition in zip(m_last_longCondition, m_last_shortCondition)]
 
 
 exp_df = pd.DataFrame()
-exp_df['last_shortCondition'] = list(tv_df['last_shortCondition'])
-exp_df['m_last_shortCondition'] = m_last_shortCondition
+exp_df['in_longCondition'] = list(tv_df['in_longCondition'])
+exp_df['m_in_longCondition'] = m_in_longCondition
 
 
 
