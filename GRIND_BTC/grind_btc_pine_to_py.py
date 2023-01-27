@@ -507,12 +507,14 @@ m_short_tp = [1 if (is_Short and low_price[idx] < (m_last_open_shortCondition[id
 m_last_long_tp = get_last_long_tp()
 m_last_short_tp = get_last_short_tp()
 m_Final_Long_tp = [1 if(m_long_tp[idx] and m_last_longCondition[idx] > m_last_long_tp[idx-1] and m_last_longCondition[idx] > last_long_sl) else 0 for idx in range(len(m_long_tp))]
+# (short_tp and last_shortCondition > nz(last_short_tp[1]) and last_shortCondition > nz(last_short_sl[1]))
+m_Final_Short_tp = [1 if(m_short_tp[idx] and m_last_shortCondition[idx] > m_last_short_tp[idx-1] and m_last_shortCondition[idx] > last_short_sl) else 0 for idx in range(len(m_short_tp))]
 
 
 
 exp_df = pd.DataFrame()
-exp_df['Final_Long_tp'] = list(tv_df['Final_Long_tp'])
-exp_df['m_Final_Long_tp'] = m_Final_Long_tp
+exp_df['Final_Short_tp'] = list(tv_df['Final_Short_tp'])
+exp_df['m_Final_Short_tp'] = m_Final_Short_tp
 
 
 
