@@ -458,11 +458,19 @@ m_last_longCondition = get_last_longCondition()
 m_last_shortCondition=get_last_shortCondition()
 m_in_longCondition = [1 if last_longCondition > last_shortCondition else 0 for last_longCondition, last_shortCondition in zip(m_last_longCondition, m_last_shortCondition)]
 m_in_shortCondition= [1 if last_shortCondition > last_longCondition else 0 for last_shortCondition, last_longCondition in zip(m_last_shortCondition, m_last_longCondition)]
+m_nLongs = list(tv_df['nLongs'])
+m_nShorts = list(tv_df['nShorts'])
 
+# TP_1 =====================================================================================================================================================================================
+tp = 1.7
+is_Long = 1
+is_Short = 1
+# 
+m_long_tp = [1 if (is_Long and high_price[idx] > (m_last_open_longCondition[idx]*(1+(tp/100))) and  m_in_longCondition[idx]) else 0 for idx in range(len(high_price))]
 
 exp_df = pd.DataFrame()
-exp_df['in_shortCondition'] = list(tv_df['in_shortCondition'])
-exp_df['m_in_shortCondition'] = m_in_shortCondition
+exp_df['long_tp'] = list(tv_df['long_tp'])
+exp_df['m_long_tp'] = m_long_tp
 
 
 
