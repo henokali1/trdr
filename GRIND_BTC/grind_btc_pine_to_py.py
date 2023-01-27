@@ -230,6 +230,17 @@ def get_last_shortCondition():
         last_shortCondition.append(int(m_time[idx])*1000 if m_shortCondition[idx] else last_shortCondition[-1])
     return last_shortCondition
 
+def get_last_long_tp():
+    r=[]
+    for idx in range(len(m_long_tp)):
+        if m_long_tp[idx]:
+            r.append(int(m_time[idx])*1000)
+        else:
+            if len(r)>0:
+                r.append(r[idx-1])
+            else:
+                r.append(0)
+    return r
 
 
 tv_df = pd.read_csv(tv_exp_fn)
@@ -465,13 +476,15 @@ m_nShorts = list(tv_df['nShorts'])
 tp = 1.7
 is_Long = 1
 is_Short = 1
-# 
 m_long_tp = [1 if (is_Long and high_price[idx] > (m_last_open_longCondition[idx]*(1+(tp/100))) and  m_in_longCondition[idx]) else 0 for idx in range(len(high_price))]
 m_short_tp = [1 if (is_Short and low_price[idx] < (m_last_open_shortCondition[idx]*(1-(tp/100))) and  m_in_shortCondition[idx]) else 0 for idx in range(len(low_price))]
 
+
+m_last_long_tp = get_last_long_tp()
+
 exp_df = pd.DataFrame()
-exp_df['short_tp'] = list(tv_df['short_tp'])
-exp_df['m_short_tp'] = m_short_tp
+exp_df['last_long_tp'] = list(tv_df['last_long_tp'])
+exp_df['m_last_long_tp'] = m_last_long_tp
 
 
 
