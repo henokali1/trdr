@@ -266,6 +266,18 @@ def get_last_short_tp():
                 r.append(0)
     return r
 
+def get_last_long_tp2():
+    r=[]
+    for idx in range(len(m_long_tp2)):
+        if m_long_tp2[idx]:
+            r.append(int(m_time[idx])*1000)
+        else:
+            if idx > 0:
+                r.append(r[idx-1])
+            else:
+                r.append(0)
+    return r
+
 
 tv_df = pd.read_csv(tv_exp_fn)
 os.remove(tv_exp_fn)
@@ -514,11 +526,12 @@ Act_tp2=1
 tp2=2.3
 m_long_tp2 = [1 if(Act_tp2 and is_Long and high_price[idx] > (m_last_open_longCondition[idx]*(1+(tp2/100))) and  m_in_longCondition[idx]) else 0 for idx in range(len(high_price))]
 m_short_tp2 = [1 if(Act_tp2 and is_Short and low_price[idx] < (m_last_open_shortCondition[idx]*(1-(tp2/100))) and  m_in_shortCondition[idx]) else 0 for idx in range(len(low_price))]
+m_last_long_tp2 = get_last_long_tp2()
 
 
 exp_df = pd.DataFrame()
-exp_df['short_tp2'] = list(tv_df['short_tp2'])
-exp_df['m_short_tp2'] = m_short_tp2
+exp_df['last_long_tp2'] = list(tv_df['last_long_tp2'])
+exp_df['m_last_long_tp2'] = m_last_long_tp2
 
 
 
