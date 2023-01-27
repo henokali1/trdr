@@ -570,10 +570,16 @@ m_Final_Short_tp3 = [1 if(m_short_tp3[idx] and m_last_shortCondition[idx] > m_la
 m_Final_longCondition = [1 if(is_Long and m_longCondition[idx]) else 0 for idx in range(len(m_longCondition))]
 m_Final_shortCondition = [1 if(is_Short and m_shortCondition[idx]) else 0 for idx in range(len(m_shortCondition))]
 
+# RE-ENTRY ON TP-HIT =====================================================================================================================================================================================
+
+# BACKTESTING =====================================================================================================================================================================================
+stoploss = 9
+m_EL = [1 if (L_first_condt and ACT_BT) else 0 for L_first_condt in m_L_first_condt]
+m_ES = [1 if (S_first_condt and ACT_BT) else 0 for S_first_condt in m_S_first_condt]
 
 exp_df = pd.DataFrame()
-exp_df['Final_shortCondition'] = list(tv_df['Final_shortCondition'])
-exp_df['m_Final_shortCondition'] = m_Final_shortCondition
+exp_df['ES'] = list(tv_df['ES'])
+exp_df['m_ES'] = m_ES
 
 
 

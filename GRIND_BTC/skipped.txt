@@ -5,3 +5,4 @@
 324 shortCondition = (shortCond[1] and nz(CondIni_short[1]) == 1)
 340 nLongs := nLongs + 1
 341 nShorts := na
+397 to 404
