@@ -567,12 +567,13 @@ m_last_long_tp3 = get_last_long_tp3()
 m_last_short_tp3 = get_last_short_tp3()
 m_Final_Long_tp3 = [1 if (m_long_tp3[idx] and m_last_longCondition[idx] > m_last_long_tp3[idx-1] and m_last_longCondition[idx] > last_long_sl) else 0 for idx in range(len(m_long_tp3))]
 m_Final_Short_tp3 = [1 if(m_short_tp3[idx] and m_last_shortCondition[idx] > m_last_short_tp3[idx-1] and m_last_shortCondition[idx] > last_short_sl) else 0 for idx in range(len(m_short_tp3))]
-m_Final_longCondition = [is_Long and m_longCondition[idx] for idx in range(len(m_longCondition))]
+m_Final_longCondition = [1 if(is_Long and m_longCondition[idx]) else 0 for idx in range(len(m_longCondition))]
+m_Final_shortCondition = [1 if(is_Short and m_shortCondition[idx]) else 0 for idx in range(len(m_shortCondition))]
 
 
 exp_df = pd.DataFrame()
-exp_df['Final_longCondition'] = list(tv_df['Final_longCondition'])
-exp_df['m_Final_longCondition'] = m_Final_longCondition
+exp_df['Final_shortCondition'] = list(tv_df['Final_shortCondition'])
+exp_df['m_Final_shortCondition'] = m_Final_shortCondition
 
 
 
