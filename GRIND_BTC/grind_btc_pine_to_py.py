@@ -467,10 +467,11 @@ is_Long = 1
 is_Short = 1
 # 
 m_long_tp = [1 if (is_Long and high_price[idx] > (m_last_open_longCondition[idx]*(1+(tp/100))) and  m_in_longCondition[idx]) else 0 for idx in range(len(high_price))]
+m_short_tp = [1 if (is_Short and low_price[idx] < (m_last_open_shortCondition[idx]*(1-(tp/100))) and  m_in_shortCondition[idx]) else 0 for idx in range(len(low_price))]
 
 exp_df = pd.DataFrame()
-exp_df['long_tp'] = list(tv_df['long_tp'])
-exp_df['m_long_tp'] = m_long_tp
+exp_df['short_tp'] = list(tv_df['short_tp'])
+exp_df['m_short_tp'] = m_short_tp
 
 
 
