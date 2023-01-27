@@ -450,11 +450,17 @@ def get_last_shortCondition():
         last_shortCondition.append(m_time[idx] if m_shortCondition[idx] else last_shortCondition[-1])
     return last_shortCondition
 
-m_last_shortCondition=get_last_shortCondition()
+def get_last_longCondition():
+    r=[0]
+    for idx in range(1, len(m_longCondition)):
+        r.append(int(m_time[idx])*1000) if m_longCondition[idx] else r.append(r[idx-1])
+    return r
+
+m_last_longCondition=get_last_longCondition()
 
 exp_df = pd.DataFrame()
-exp_df['last_shortCondition'] = list(tv_df['last_shortCondition'])
-exp_df['m_last_shortCondition'] = m_last_shortCondition
+exp_df['last_longCondition'] = list(tv_df['last_longCondition'])
+exp_df['m_last_longCondition'] = m_last_longCondition
 
 
 
