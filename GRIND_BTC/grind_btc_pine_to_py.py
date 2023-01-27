@@ -565,7 +565,7 @@ m_long_tp3 = [1 if(Act_tp3 and is_Long and high_price[idx] > (m_last_open_longCo
 m_short_tp3 = [1 if(Act_tp3 and is_Short and low_price[idx] < (m_last_open_shortCondition[idx]*(1-(tp3/100))) and  m_in_shortCondition[idx]) else 0 for idx in range(len(low_price))]
 m_last_long_tp3 = get_last_long_tp3()
 m_last_short_tp3 = get_last_short_tp3()
-
+# 
 
 exp_df = pd.DataFrame()
 exp_df['last_short_tp3'] = list(tv_df['last_short_tp3'])
