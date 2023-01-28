@@ -1,8 +1,8 @@
 //@version=4
 strategy("pg GRIND BTC [45MIN]", overlay=true,  pyramiding=1,initial_capital = 10000, default_qty_type= strategy.percent_of_equity, default_qty_value = 100, calc_on_order_fills=false, slippage=0,commission_type=strategy.commission.percent,commission_value=0.04)
+plot(volume, 'volume')
 //SOURCE =============================================================================================================================================================================================================================================================================================================
 src = input(hl2)
-
 // POSITION ==========================================================================================================================================================================================================================================================================================================
 
 Position = input("Both", title= "Longs / Shorts", options = ["Both","Longs","Shorts"])
@@ -99,12 +99,14 @@ isRegularFractal(mode) =>
        low[4] > low[3] and low[3] > low[2] and low[2] < low[1] and low[1] < low[0] : 
        false
     ret
+
 isBWFractal(mode) =>
     ret = mode == 1 ? high[4] < high[2] and high[3] <= high[2] and high[2] >= high[1] and 
        high[2] > high[0] : mode == -1 ? 
        low[4] > low[2] and low[3] >= low[2] and low[2] <= low[1] and low[2] < low[0] : 
        false
     ret
+
 fastEMA = ema(haClose, fastEMAlength)
 mediumEMA = ema(haClose, mediumEMAlength)
 slowEMA = ema(haClose, slowEMAlength)
@@ -151,7 +153,6 @@ S_scalp = nz(TradeDirection[1]) == 0 and TradeDirection == -1
 
 
 //ADX-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 calcADX(_len) =>
     up = change(high)
 	down = -change(low)
@@ -163,6 +164,7 @@ calcADX(_len) =>
 	sum = _plus + _minus
 	_adx = 100 * rma(abs(_plus - _minus) / (sum == 0 ? 1 : sum), _len)
     [_plus,_minus,_adx]
+
 calcADX_Masanakamura(_len) =>
     SmoothedTrueRange = 0.0
     SmoothedDirectionalMovementPlus = 0.0
@@ -180,9 +182,12 @@ calcADX_Masanakamura(_len) =>
     [DIP,DIM,adx]
 [DIPlusC,DIMinusC,ADXC] = calcADX(ADX_len) 
 [DIPlusM,DIMinusM,ADXM] = calcADX_Masanakamura(ADX_len)
+
+
 DIPlus = ADX_options == "CLASSIC" ? DIPlusC    : DIPlusM
 DIMinus = ADX_options == "CLASSIC" ? DIMinusC   : DIMinusM
 ADX = ADX_options == "CLASSIC" ? ADXC       : ADXM
+
 L_adx = DIPlus > DIMinus and ADX > th
 S_adx = DIPlus < DIMinus and ADX > th
 
@@ -205,6 +210,7 @@ wt1 = tci
 wt2 = sma(wt1,4)
 mfi_upper = sum(volume * (change(hlc3) <= 0 ? 0 : hlc3), 58)
 mfi_lower = sum(volume * (change(hlc3) >= 0 ? 0 : hlc3), 58)
+
 _mfi_rsi(mfi_upper, mfi_lower) =>
     if mfi_lower == 0
         100
@@ -234,8 +240,8 @@ getMA0(length) =>
 
 ma = getMA0(maLength)
 rvol = volume / ma
-
 volumegood = volume > rvolTrigger * ma
+
 
 //JMA------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -243,6 +249,7 @@ jsa = (src0 + src0[lengths]) / 2
 sig = src0 > jsa ? 1 : src0 < jsa ? -1 : 0
 L_jma = sig > 0 
 S_jma = sig < 0 
+
 
 //MACD-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -268,6 +275,8 @@ S_s_ma = MA_speed < 0
 //SAR-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 psar = sar(start, increment, maximum)
+plot(psar, 'psar')
+
 dir = psar < close ? 1 : -1
 L_sar = dir ==1   
 S_sar = dir ==-1  
@@ -309,14 +318,19 @@ longCond := L_first_condt
 shortCond := S_first_condt
 CondIni_long := longCond[1] ? 1 : shortCond[1] ? -1 : nz(CondIni_long[1])
 CondIni_short := longCond[1] ? 1 : shortCond[1] ? -1 : nz(CondIni_short[1])
+plot(CondIni_long, 'CondIni_long')
+plot(CondIni_short, 'CondIni_short')
 longCondition = (longCond[1] and nz(CondIni_long[1]) == -1)
 shortCondition = (shortCond[1] and nz(CondIni_short[1]) == 1)
+plot(longCondition ? 1 : 0,'longCondition')
+plot(shortCondition ? 1 : 0,'shortCondition')
 
 // Price position----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 var int last_long_sl = na, var int last_short_sl = na
 last_open_longCondition := longCondition ? close[1] : nz(last_open_longCondition[1]) 
 last_open_shortCondition := shortCondition ? close[1] : nz(last_open_shortCondition[1])
+plot(time, 'time')
 last_longCondition := longCondition ? time : nz(last_longCondition[1])
 last_shortCondition := shortCondition ? time : nz(last_shortCondition[1])
 in_longCondition = last_longCondition > last_shortCondition
@@ -330,6 +344,8 @@ if shortCondition
     nLongs := na
     nShorts := nShorts + 1
     
+plot(nLongs, 'nLongs')
+plot(nShorts, 'nShorts')
 //TP_1 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 tp = input(1.7, "% Take profit 1", type = input.float, step = 0.1) 
@@ -386,7 +402,7 @@ if Final_Short_tp3
     CondIni_short := 1
     sum_short := 0.0
     nShorts := na
-   
+
 //BAR COLORS =======================================================================================================================================================================================================================================================================================================
 
 bar_col = L_mfi ? color.green : S_mfi ? color.red :  L_scalp_condt ? color.lime : S_scalp_condt ? color.maroon : color.orange
@@ -421,12 +437,17 @@ if L_first_condt and ACT_BT
 if S_first_condt and ACT_BT
     strategy.entry( "S", strategy.short)
 
+//    ---------------------------------------------------------------------
+plot(S_first_condt and ACT_BT ? 1 : 0,'ES')       // --------------------------------
+// plot(los, 'los')
+//    ---------------------------------------------------------------------
+
 
 per(pcnt) =>
-    strategy.position_size != 0 ? round(pcnt / 100 * strategy.position_avg_price / syminfo.mintick) : float(na)
+    strategy.position_size != 0 ? round(pcnt / 100 * strategy.position_avg_price / syminfo.mintick) : float(na)   
+
 stoploss = input(title="stop loss", defval=9, minval=0.01)
 los = per(stoploss)
-
 q1 = input(title="% TP1 Q ", defval=33, minval=1)
 q2 = input(title="% TP2 Q",  defval=66, minval=1)
 q3 = input(title="% TP3 Q",  defval=100, minval=1)

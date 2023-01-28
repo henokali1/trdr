@@ -242,18 +242,6 @@ def get_last_long_tp():
                 r.append(0)
     return r
 
-def get_last_long_tp():
-    r=[]
-    for idx in range(len(m_long_tp)):
-        if m_long_tp[idx]:
-            r.append(int(m_time[idx])*1000)
-        else:
-            if len(r)>0:
-                r.append(r[idx-1])
-            else:
-                r.append(0)
-    return r
-
 def get_last_short_tp():
     r=[]
     for idx in range(len(m_short_tp)):
@@ -524,6 +512,7 @@ m_CondIni_short = list(tv_df['CondIni_short'])
 m_longCondition = list(tv_df['longCondition'])
 m_shortCondition = list(tv_df['shortCondition'])
 
+
 # Price position =====================================================================================================================================================================================
 m_last_open_longCondition = get_last_open_longCondition()
 m_last_open_shortCondition = get_last_open_shortCondition()
@@ -535,51 +524,155 @@ m_in_shortCondition= [1 if last_shortCondition > last_longCondition else 0 for l
 m_nLongs = list(tv_df['nLongs'])
 m_nShorts = list(tv_df['nShorts'])
 
-# TP_1 =====================================================================================================================================================================================
-tp = 1.7
-is_Long = 1
-is_Short = 1
-last_long_sl = 0
-last_short_sl = 0
-m_long_tp = [1 if (is_Long and high_price[idx] > (m_last_open_longCondition[idx]*(1+(tp/100))) and  m_in_longCondition[idx]) else 0 for idx in range(len(high_price))]
-m_short_tp = [1 if (is_Short and low_price[idx] < (m_last_open_shortCondition[idx]*(1-(tp/100))) and  m_in_shortCondition[idx]) else 0 for idx in range(len(low_price))]
-m_last_long_tp = get_last_long_tp()
-m_last_short_tp = get_last_short_tp()
-m_Final_Long_tp = [1 if(m_long_tp[idx] and m_last_longCondition[idx] > m_last_long_tp[idx-1] and m_last_longCondition[idx] > last_long_sl) else 0 for idx in range(len(m_long_tp))]
-m_Final_Short_tp = [1 if(m_short_tp[idx] and m_last_shortCondition[idx] > m_last_short_tp[idx-1] and m_last_shortCondition[idx] > last_short_sl) else 0 for idx in range(len(m_short_tp))]
 
-# TP_2 =====================================================================================================================================================================================
-Act_tp2=1
-tp2=2.3
-m_long_tp2 = [1 if(Act_tp2 and is_Long and high_price[idx] > (m_last_open_longCondition[idx]*(1+(tp2/100))) and  m_in_longCondition[idx]) else 0 for idx in range(len(high_price))]
-m_short_tp2 = [1 if(Act_tp2 and is_Short and low_price[idx] < (m_last_open_shortCondition[idx]*(1-(tp2/100))) and  m_in_shortCondition[idx]) else 0 for idx in range(len(low_price))]
-m_last_long_tp2 = get_last_long_tp2()
-m_last_short_tp2 = get_last_short_tp2()
-m_Final_Long_tp2 = [1 if(m_long_tp2[idx] and m_last_longCondition[idx] > m_last_long_tp2[idx-1] and m_last_longCondition[idx] > last_long_sl) else 0 for idx in range(len(m_long_tp2))]
-m_Final_Short_tp2 = [1 if(m_short_tp2[idx] and m_last_shortCondition[idx] > m_last_short_tp2[idx-1] and m_last_shortCondition[idx] > last_short_sl) else 0 for idx in range(len(m_short_tp2))]
+tot = len(high_price)
+nm_CondIni_long = [0]*tot
+nm_CondIni_short = [0]*tot
+nm_longCond = m_L_first_condt
+nm_shortCond = m_S_first_condt
+nm_longCondition = [0]*tot
+nm_shortCondition = [0]*tot
+nm_last_open_longCondition = [0]*tot
+nm_last_open_shortCondition = [0]*tot
+nm_last_longCondition = [0]*tot
+nm_last_shortCondition = [0]*tot
+nm_in_longCondition = [0]*tot
+nm_in_shortCondition = [0]*tot
+nm_nLongs = [0]*tot
+nm_nShorts = [0]*tot
+nm_tp = 1.7
+nm_is_Long = 1
+nm_is_Short = 1
+nm_last_long_sl = 0
+nm_last_short_sl = 0
+nm_long_tp = [0]*tot
+nm_short_tp = [0]*tot
+nm_last_long_tp = [0]*tot
+nm_last_short_tp = [0]*tot
+nm_Final_Long_tp = [0]*tot
+nm_Final_Short_tp = [0]*tot
+nm_Act_tp2=1
+nm_tp2=2.3
+nm_long_tp2 = [0]*tot
+nm_short_tp2 = [0]*tot
+nm_last_long_tp2 = [0]*tot
+nm_last_short_tp2 = [0]*tot
+nm_Final_Long_tp2 = [0]*tot
+nm_Final_Short_tp2 = [0]*tot
+nm_Act_tp3=1
+nm_tp3=3.4
+nm_long_tp3 = [0]*tot
+nm_short_tp3 = [0]*tot
+nm_last_long_tp3 = [0]*tot
+nm_last_short_tp3 = [0]*tot
+nm_Final_Long_tp3 = [0]*tot
+nm_Final_Short_tp3 = [0]*tot
+nm_Final_longCondition = [0]*tot
+nm_Final_shortCondition = [0]*tot
 
-# TP_3 =====================================================================================================================================================================================
-Act_tp3=1
-tp3=3.4
-m_long_tp3 = [1 if(Act_tp3 and is_Long and high_price[idx] > (m_last_open_longCondition[idx]*(1+(tp3/100))) and  m_in_longCondition[idx]) else 0 for idx in range(len(high_price))]
-m_short_tp3 = [1 if(Act_tp3 and is_Short and low_price[idx] < (m_last_open_shortCondition[idx]*(1-(tp3/100))) and  m_in_shortCondition[idx]) else 0 for idx in range(len(low_price))]
-m_last_long_tp3 = get_last_long_tp3()
-m_last_short_tp3 = get_last_short_tp3()
-m_Final_Long_tp3 = [1 if (m_long_tp3[idx] and m_last_longCondition[idx] > m_last_long_tp3[idx-1] and m_last_longCondition[idx] > last_long_sl) else 0 for idx in range(len(m_long_tp3))]
-m_Final_Short_tp3 = [1 if(m_short_tp3[idx] and m_last_shortCondition[idx] > m_last_short_tp3[idx-1] and m_last_shortCondition[idx] > last_short_sl) else 0 for idx in range(len(m_short_tp3))]
-m_Final_longCondition = [1 if(is_Long and m_longCondition[idx]) else 0 for idx in range(len(m_longCondition))]
-m_Final_shortCondition = [1 if(is_Short and m_shortCondition[idx]) else 0 for idx in range(len(m_shortCondition))]
+
+for idx in range(1,tot):
+    nm_CondIni_long[idx] = nm_CondIni_long[idx-1]
+    nm_CondIni_short[idx] = nm_CondIni_short[idx-1]
+    # longCond[1] ? 1 : shortCond[1] ? -1 : nz(CondIni_long[1])
+    if nm_longCond[idx-1]:
+        nm_CondIni_long[idx] = 1
+    elif nm_shortCond[idx-1]:
+        nm_CondIni_long[idx-1] = -1
+    else:
+        nm_CondIni_long[idx-1]
+    nm_longCondition[idx]=(m_longCond[idx-1] and nm_CondIni_long[idx-1] == -1)
+    nm_shortCondition[idx]=(m_shortCond[idx-1] and nm_CondIni_short[idx-1] == 1)
+    nm_last_open_longCondition[idx]=nm_last_open_longCondition[idx-1] if not nm_longCondition[idx] else close_price[idx-1]
+    nm_last_open_shortCondition[idx]=nm_last_open_shortCondition[idx-1] if not nm_shortCondition[idx] else close_price[idx-1]
+    nm_last_longCondition[idx]=int(m_time[idx])*1000 if nm_longCondition[idx] else nm_last_longCondition[idx-1]
+    nm_last_shortCondition[idx]=int(m_time[idx])*1000 if nm_shortCondition[idx] else nm_last_shortCondition[idx-1]
+    nm_in_longCondition[idx] = 1 if nm_last_longCondition[idx] > nm_last_shortCondition[idx] else 0 
+    nm_in_shortCondition[idx] = 1 if nm_last_shortCondition[idx] > nm_last_longCondition[idx] else 0
+    nm_nLongs[idx]=nm_nLongs[idx-1]
+    nm_nShorts[idx]=nm_nShorts[idx-1]
+
+    # TP_1 =====================================================================================================================================================================================    
+    nm_long_tp[idx] = 1 if (nm_is_Long and high_price[idx] > (nm_last_open_longCondition[idx]*(1+(nm_tp/100))) and  nm_in_longCondition[idx]) else 0
+    nm_short_tp[idx] = 1 if (nm_is_Short and low_price[idx] < (nm_last_open_shortCondition[idx]*(1-(nm_tp/100))) and  nm_in_shortCondition[idx]) else 0
+    nm_last_long_tp[idx] = int(m_time[idx])*1000 if nm_long_tp[idx] else nm_last_long_tp[idx-1]
+    nm_last_short_tp[idx] = int(m_time[idx])*1000 if nm_short_tp[idx] else nm_last_short_tp[idx-1]
+    nm_Final_Long_tp[idx] = 1 if(nm_long_tp[idx] and nm_last_longCondition[idx] > nm_last_long_tp[idx-1] and nm_last_longCondition[idx] > nm_last_long_sl) else 0
+    nm_Final_Short_tp[idx] = 1 if(nm_short_tp[idx] and nm_last_shortCondition[idx] > nm_last_short_tp[idx-1] and nm_last_shortCondition[idx] > nm_last_short_sl) else 0
+
+    # TP_2 =====================================================================================================================================================================================
+    nm_long_tp2[idx] = 1 if(nm_Act_tp2 and nm_is_Long and high_price[idx] > (nm_last_open_longCondition[idx]*(1+(nm_tp2/100))) and  nm_in_longCondition[idx]) else 0
+    nm_short_tp2[idx] = 1 if(nm_Act_tp2 and nm_is_Short and low_price[idx] < (nm_last_open_shortCondition[idx]*(1-(nm_tp2/100))) and  nm_in_shortCondition[idx]) else 0
+    nm_last_long_tp2[idx] = int(m_time[idx])*1000 if nm_long_tp2[idx] else nm_last_long_tp2[idx-1]
+    nm_last_short_tp2[idx] = int(m_time[idx])*1000 if nm_short_tp2[idx] else nm_last_short_tp2[idx-1]
+    nm_Final_Long_tp2[idx] = 1 if(nm_long_tp2[idx] and nm_last_longCondition[idx] > nm_last_long_tp2[idx-1] and nm_last_longCondition[idx] > nm_last_long_sl) else 0
+    nm_Final_Short_tp2[idx] = 1 if(nm_short_tp2[idx] and nm_last_shortCondition[idx] > nm_last_short_tp2[idx-1] and nm_last_shortCondition[idx] > nm_last_short_sl) else 0
+
+    # TP_3 =====================================================================================================================================================================================
+    nm_long_tp3[idx] = 1 if(nm_Act_tp3 and nm_is_Long and high_price[idx] > (nm_last_open_longCondition[idx]*(1+(nm_tp3/100))) and  nm_in_longCondition[idx]) else 0
+    nm_short_tp3[idx] = 1 if(nm_Act_tp3 and nm_is_Short and low_price[idx] < (nm_last_open_shortCondition[idx]*(1-(nm_tp3/100))) and  nm_in_shortCondition[idx]) else 0
+    nm_last_long_tp3[idx] = int(m_time[idx])*1000 if nm_long_tp3[idx] else nm_last_long_tp3[idx-1]
+    nm_last_short_tp3[idx] = int(m_time[idx])*1000 if nm_short_tp3[idx] else nm_last_short_tp3[idx-1]
+    nm_Final_Long_tp3[idx] = 1 if (nm_long_tp3[idx] and nm_last_longCondition[idx] > nm_last_long_tp3[idx-1] and nm_last_longCondition[idx] > nm_last_long_sl) else 0
+    nm_Final_Short_tp3[idx] = 1 if(nm_short_tp3[idx] and nm_last_shortCondition[idx] > nm_last_short_tp3[idx-1] and nm_last_shortCondition[idx] > nm_last_short_sl) else 0
+    nm_Final_longCondition[idx] = 1 if(nm_is_Long and nm_longCondition[idx]) else 0
+    nm_Final_shortCondition[idx] = 1 if(nm_is_Short and nm_shortCondition[idx]) else 0
+
+    if nm_Final_Long_tp3[idx]:
+        nm_CondIni_long[idx] = -1
+        nm_nLongs[idx] = 0
+    
+    if nm_Final_Short_tp3:
+        nm_CondIni_short[idx] = 1
+        nm_nShorts[idx] = 0
+
+
+
+# # TP_1 =====================================================================================================================================================================================
+# tp = 1.7
+# is_Long = 1
+# is_Short = 1
+# last_long_sl = 0
+# last_short_sl = 0
+# m_long_tp = [1 if (is_Long and high_price[idx] > (m_last_open_longCondition[idx]*(1+(tp/100))) and  m_in_longCondition[idx]) else 0 for idx in range(len(high_price))]
+# m_short_tp = [1 if (is_Short and low_price[idx] < (m_last_open_shortCondition[idx]*(1-(tp/100))) and  m_in_shortCondition[idx]) else 0 for idx in range(len(low_price))]
+# m_last_long_tp = get_last_long_tp()
+# m_last_short_tp = get_last_short_tp()
+# m_Final_Long_tp = [1 if(m_long_tp[idx] and m_last_longCondition[idx] > m_last_long_tp[idx-1] and m_last_longCondition[idx] > last_long_sl) else 0 for idx in range(len(m_long_tp))]
+# m_Final_Short_tp = [1 if(m_short_tp[idx] and m_last_shortCondition[idx] > m_last_short_tp[idx-1] and m_last_shortCondition[idx] > last_short_sl) else 0 for idx in range(len(m_short_tp))]
+
+# # TP_2 =====================================================================================================================================================================================
+# Act_tp2=1
+# tp2=2.3
+# m_long_tp2 = [1 if(Act_tp2 and is_Long and high_price[idx] > (m_last_open_longCondition[idx]*(1+(tp2/100))) and  m_in_longCondition[idx]) else 0 for idx in range(len(high_price))]
+# m_short_tp2 = [1 if(Act_tp2 and is_Short and low_price[idx] < (m_last_open_shortCondition[idx]*(1-(tp2/100))) and  m_in_shortCondition[idx]) else 0 for idx in range(len(low_price))]
+# m_last_long_tp2 = get_last_long_tp2()
+# m_last_short_tp2 = get_last_short_tp2()
+# m_Final_Long_tp2 = [1 if(m_long_tp2[idx] and m_last_longCondition[idx] > m_last_long_tp2[idx-1] and m_last_longCondition[idx] > last_long_sl) else 0 for idx in range(len(m_long_tp2))]
+# m_Final_Short_tp2 = [1 if(m_short_tp2[idx] and m_last_shortCondition[idx] > m_last_short_tp2[idx-1] and m_last_shortCondition[idx] > last_short_sl) else 0 for idx in range(len(m_short_tp2))]
+
+# # TP_3 =====================================================================================================================================================================================
+# Act_tp3=1
+# tp3=3.4
+# m_long_tp3 = [1 if(Act_tp3 and is_Long and high_price[idx] > (m_last_open_longCondition[idx]*(1+(tp3/100))) and  m_in_longCondition[idx]) else 0 for idx in range(len(high_price))]
+# m_short_tp3 = [1 if(Act_tp3 and is_Short and low_price[idx] < (m_last_open_shortCondition[idx]*(1-(tp3/100))) and  m_in_shortCondition[idx]) else 0 for idx in range(len(low_price))]
+# m_last_long_tp3 = get_last_long_tp3()
+# m_last_short_tp3 = get_last_short_tp3()
+# m_Final_Long_tp3 = [1 if (m_long_tp3[idx] and m_last_longCondition[idx] > m_last_long_tp3[idx-1] and m_last_longCondition[idx] > last_long_sl) else 0 for idx in range(len(m_long_tp3))]
+# m_Final_Short_tp3 = [1 if(m_short_tp3[idx] and m_last_shortCondition[idx] > m_last_short_tp3[idx-1] and m_last_shortCondition[idx] > last_short_sl) else 0 for idx in range(len(m_short_tp3))]
+# m_Final_longCondition = [1 if(is_Long and m_longCondition[idx]) else 0 for idx in range(len(m_longCondition))]
+# m_Final_shortCondition = [1 if(is_Short and m_shortCondition[idx]) else 0 for idx in range(len(m_shortCondition))]
 
 # RE-ENTRY ON TP-HIT =====================================================================================================================================================================================
 
-# BACKTESTING =====================================================================================================================================================================================
+# BACKTESTING ============================================================================================================================================================================================
 stoploss = 9
 m_EL = [1 if (L_first_condt and ACT_BT) else 0 for L_first_condt in m_L_first_condt]
 m_ES = [1 if (S_first_condt and ACT_BT) else 0 for S_first_condt in m_S_first_condt]
 
 exp_df = pd.DataFrame()
-exp_df['ES'] = list(tv_df['ES'])
-exp_df['m_ES'] = m_ES
+exp_df['m_CondIni_long'] = list(tv_df['CondIni_long'])
+exp_df['nm_CondIni_long'] = nm_CondIni_long
 
 
 
