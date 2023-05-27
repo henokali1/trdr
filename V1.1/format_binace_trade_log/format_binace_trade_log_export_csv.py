@@ -1,6 +1,8 @@
 import pandas as pd
 from os import remove
+from pathlib import Path
 
+downloads_path = str(Path.home() / "Downloads")
 
 def read_file(filename):
     with open(filename, 'r') as f:
@@ -42,9 +44,9 @@ def clean_data(fn):
     cleaned_df['Date/Time'] = dt
     cleaned_df['Price USDT'] = price
     cleaned_df['Profit %'] = profit_percent
-    cleaned_df.to_csv('cleaned.csv', index=False)
+    cleaned_df.to_csv(f'{downloads_path}/cleaned.csv', index=False)
 
-fn = 'Alart_My_GRIND_BTC_[15MIN]_List_of_Trades_2023-03-15 (2).csv'
-# clean_data(fn)
+fn = f'{downloads_path}/Alart_My_GRIND_BTC_[15MIN]_List_of_Trades_2023-05-27.csv'
+clean_data(fn)
 
 uniuqe = ['L-TP1', 'TP1-TP2', 'TP2-TP3', 'S-TP1', 'TP3-L', 'TP1-L', 'TP3-S', 'TP2-L', 'TP2-S', 'L-S', 'TP1-S', 'S-L', 'TP3-TP1']
