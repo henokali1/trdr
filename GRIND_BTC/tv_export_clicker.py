@@ -42,6 +42,9 @@ def on_key_press(event):
         move_mouse_to_coordinates(939, 587)
         sleep(0.5)
         pyautogui.click()
+        sleep(0.25)
+        keyboard.press_and_release('alt+tab')
+
                 
 
 keyboard.on_press(on_key_press)
