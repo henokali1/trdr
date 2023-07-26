@@ -1,8 +1,0 @@
-☑️277 psar = sar(start, increment, maximum)
-319 CondIni_long := longCond[1] ? 1 : shortCond[1] ? -1 : nz(CondIni_long[1])
-320 CondIni_short := longCond[1] ? 1 : shortCond[1] ? -1 : nz(CondIni_short[1])
-323 longCondition = (longCond[1] and nz(CondIni_long[1]) == -1)
-324 shortCondition = (shortCond[1] and nz(CondIni_short[1]) == 1)
-340 nLongs := nLongs + 1
-341 nShorts := na
-397 to 404
