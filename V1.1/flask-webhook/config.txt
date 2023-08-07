@@ -1,0 +1,6 @@
+tp1: 0.21
+tp2: 2.2
+tp3: 3.3
+qty: 0.014
+leverage: 10
+capital: [89.0]
