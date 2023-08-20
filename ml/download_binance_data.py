@@ -6,7 +6,7 @@ from datetime import datetime
 import pandas as pd
 
 def get_client():
-    fn = 'C:\\Users\\HK\\Documents\\Bkey\\binance-key.pickle'
+    fn = '../../key/binance-key.pickle'
     with open(fn, 'rb') as handle:
         k = pickle.load(handle)
     return Client(k['API_KEY'], k['API_SECRET'])
@@ -41,7 +41,7 @@ def get_historical_data(start_timestamp, end_timestamp):
         next_ets = current_sts + 900*500 if (current_sts + 900*500) < end_timestamp else end_timestamp
         print(current_sts, next_ets, f'100% completed') if next_ets == end_timestamp else print(current_sts, next_ets, f'{round(cntr*100/tot, 1)}% completed')
         cntr += 1
-        klines = client.futures_historical_klines('BTCUSDT', '1m', current_sts*1000, next_ets*1000, limit=500)
+        klines = client.futures_historical_klines('BTCUSDT', '1h', current_sts*1000, next_ets*1000, limit=500)
         
         for kline in klines:
             timestamp = kline[0]/1000
@@ -54,13 +54,13 @@ def get_historical_data(start_timestamp, end_timestamp):
             data.append([timestamp, open_price, high_price, low_price, close_price, volume])
 
     df = pd.DataFrame(data, columns=['time', 'open', 'high', 'low', 'close', 'volume'])
-    df.to_csv(f'tst.csv', index=False)
+    df.to_csv(f'../../data/1h.csv', index=False)
     print('Data Exported')
 
 
-start_timestamp = get_unix_timestamp('1/11/2019 00:00:00')
+
+start_timestamp = get_unix_timestamp('1/10/2019 00:00:00')
 end_timestamp = int(time())
 
 
 get_historical_data(start_timestamp, end_timestamp)
-
