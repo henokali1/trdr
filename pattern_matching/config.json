@@ -1,5 +1,6 @@
 {
     "candlestick": "15m",
     "chunk_size": 10,
-    "roi_threshold": 1
+    "roi_threshold": 1,
+    "sm_threshold": 1
 }
