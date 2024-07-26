@@ -1,4 +1,3 @@
-
 from binance.client import Client
 from binance.enums import *
 from time import time
@@ -8,6 +7,13 @@ import pandas as pd
 from pathlib import Path
 from datetime import datetime
 import json
+import math
+import ast
+from time import time
+import pickle
+
+
+from typing import List, Dict
 
 
 downloads_path = str(Path.home() / "Downloads")
@@ -164,41 +170,7 @@ def get_tst_chunks(ref_chunks_df):
     print('TST Chunks Exported!', f'{downloads_path}/tst_chunks.csv')
     return ref_chunks_df, tst_lst
 
-config = get_config('config.json')
-candlestick = config['candlestick']
-chunk_size = config['chunk_size']
-roi_threshold = config['roi_threshold']
-sm_threshold = config['sm_threshold']
 
-start_timestamp = 1609459200 #  January 1, 2021 12:00:00 AM
-end_timestamp = 1719721304
-
-# ref_chunks = get_chunks(pc_ref)
-# tst_chunks = get_chunks(pc_tst)
-# hd = read_local_hd(hd_dl_fn)
-# qt_df = get_qualifying_trades(hd)
-
-# ref_chunks_df = get_chunks(qt_df)
-# tst_chunks_df, tst_lst = get_tst_chunks(ref_chunks_df)
-
-tst_chunks_df = pd.read_csv(f'{downloads_path}/tst_chunks.csv')
-close_price_lst = list(tst_chunks_df['close'])
-high_price_lst = list(tst_chunks_df['high'])
-ref_chunks_lst_str = list(tst_chunks_df['ref_chunks'])
-tst_chunks_lst_str = list(tst_chunks_df['tst_chunks'])
-long_qualified_lst = list(tst_chunks_df['long_qualified'])
-ts = list(tst_chunks_df['time'])
-ts = [int(i) for i in ts]
-long = list(tst_chunks_df['long'])
-short = list(tst_chunks_df['short'])
-
-
-
-import math
-import ast
-from time import time
-
-from typing import List, Dict
 
 def sort_dicts_by_value(dicts: List[Dict], key: str) -> List[Dict]:
     """
@@ -232,18 +204,25 @@ def format_elapsed_time(seconds):
 def chunk_diff(ref_lst, tst_lst):
     cntr = 0
     chunk_size = len(tst_lst[0])
-    sm_lst = []
+    r = []
     tot = len(tst_lst)
     start_ts = int(time())
     for tst_lst_idx,tst_val in enumerate(tst_lst):
         tst_lst_idx += 1
+        pattern_occurrence = 0
+        long_rois_lst = []
+        short_rois_lst = []
+        avg_long_roi = 0
+        avg_short_roi = 0
+        avg_sm = 0
+        sm_lst = []
         if(tst_lst_idx%10 == 0) and tst_lst_idx != 0:
             completed = round(tst_lst_idx*100/tot, 1)
             remaining = round(100-completed)
             cur_ts = time()
             ts_diff = int(cur_ts - start_ts)
             estimated_tm_to_complete = round(int(ts_diff*(tot-tst_lst_idx)/tst_lst_idx), 1)
-            print(f"Elapsed Time: {format_elapsed_time(ts_diff)} \t Completed: {completed}% \tRemaining: {remaining}% \tETA: {format_elapsed_time(estimated_tm_to_complete)}")
+            print(f"\rElapsed Time: {format_elapsed_time(ts_diff)} \t Completed: {completed}% \tRemaining: {remaining}% \tETA: {format_elapsed_time(estimated_tm_to_complete)}", end="")
         for ref_idx,ref_val in enumerate(ref_lst):
             diff = []
             if(all_zeros(ref_val)) or (all_zeros(tst_val) or (tst_val == ref_val)):
@@ -253,18 +232,74 @@ def chunk_diff(ref_lst, tst_lst):
                     diff.append(abs(tst_val[k] - ref_val[k]))
                 cntr += 1
                 sm = round(sum(diff), 2)
-                if sm <= sm_threshold:
-                    pattern_id = f'{ts[ref_idx]}_{candlestick}_{chunk_size}_{roi_threshold}_{sm_threshold}'
-                    long_roi = long[ref_idx]
-                    short_roi = short[ref_idx]
-                    sm_lst.append({'sm': sm, 'pattern_id': pattern_id, 'long_roi': long_roi, 'short_roi': short_roi, 'ref': ref_val, 'tst': tst_val})
-    return sm_lst
+
+                if (sm <= sm_threshold) and (long_qualified_lst[ref_idx]):
+                    
+                    sm_lst.append(sm)
+                    long_rois_lst.append(long[ref_idx])
+                    short_rois_lst.append(short[ref_idx])
+                    pattern_occurrence += 1
+                    # sm_lst.append({'sm': sm, 'pattern_id': pattern_id, 'long_roi': long_roi, 'short_roi': short_roi, 'ref': ref_val, 'tst': tst_val})
+        if pattern_occurrence > 0:
+            pattern_id = f'{ts[tst_lst_idx]}_{candlestick}_{chunk_size}_{roi_threshold}_{sm_threshold}'
+            avg_sm = round(sum(sm_lst)/len(sm_lst), 2)
+            avg_long_roi = round(sum(long_rois_lst)/len(long_rois_lst), 2)
+            avg_short_roi = round(sum(short_rois_lst)/len(short_rois_lst), 2)
+            r.append({'avg_sm': avg_sm, 'pattern_occurrence': pattern_occurrence, 'pattern_id': pattern_id, 'avg_long_roi': avg_long_roi, 'avg_short_roi': avg_short_roi, 'ref': ref_val, 'tst_chunk': tst_val})
+    return r
 
 def str_to_lst(val):
     try:
         return ast.literal_eval(val)
     except ValueError as e:
         return math.isnan(val)
+
+def save_dict_to_pickle(dictionary, filename):
+    with open(filename, 'wb') as file:
+        pickle.dump(dictionary, file)
+        print(f'Saved {filename}')
+
+def load_dict_from_pickle(filename):
+    with open(filename, 'rb') as file:
+        dictionary = pickle.load(file)
+    print(f'Reading {filename}')
+    return dictionary
+
+
+
+
+config = get_config('config.json')
+candlestick = config['candlestick']
+chunk_size = config['chunk_size']
+roi_threshold = config['roi_threshold']
+sm_threshold = config['sm_threshold']
+
+start_timestamp = 1609459200 #  January 1, 2021 12:00:00 AM
+end_timestamp = 1719721304
+
+# ref_chunks = get_chunks(pc_ref)
+# tst_chunks = get_chunks(pc_tst)
+# hd = read_local_hd(hd_dl_fn)
+# qt_df = get_qualifying_trades(hd)
+
+# ref_chunks_df = get_chunks(qt_df)
+# tst_chunks_df, tst_lst = get_tst_chunks(ref_chunks_df)
+
+print('Reading tst_chunks.csv')
+tst_chunks_df = pd.read_csv(f'{downloads_path}/tst_chunks.csv')
+close_price_lst = list(tst_chunks_df['close'])
+high_price_lst = list(tst_chunks_df['high'])
+ref_chunks_lst_str = list(tst_chunks_df['ref_chunks'])
+tst_chunks_lst_str = list(tst_chunks_df['tst_chunks'])
+long_qualified_lst = list(tst_chunks_df['long_qualified'])
+ts = list(tst_chunks_df['time'])
+ts = [int(i) for i in ts]
+long = list(tst_chunks_df['long'])
+short = list(tst_chunks_df['short'])
+
+# -------------------------------------------------------------------------------------------
+
+
 
 # for idx in range(len(long_qualified_lst)):
 
@@ -274,11 +309,16 @@ for i in tst_chunks_lst_str:
     if type(v) == type([1]):
         tst_val_lst.append(v)
 
-tst_val_lst = tst_val_lst[:400]
+# tst_val_lst = tst_val_lst[:50]
 ref_chunks_lst = [str_to_lst(i) for i in ref_chunks_lst_str]
-chunk_diff_lst = chunk_diff(ref_chunks_lst, tst_val_lst)
-print('Calculating sdbv...')
-sdbv = sort_dicts_by_value(chunk_diff_lst, 'sm')
 
-for i in range(100):
-    print(sdbv[i])
+print('Calculating chunk_diff')
+chunk_diff_lst = chunk_diff(ref_chunks_lst, tst_val_lst)
+# print('Sorting by avg_sm...')
+# sorted_by_avg_sm = sort_dicts_by_value(chunk_diff_lst, 'avg_sm')
+print('\nSorting by pattern_occurrence...')
+sorted_by_pattern_occurrence = sort_dicts_by_value(chunk_diff_lst, 'pattern_occurrence')
+sorted_by_pattern_occurrence = sorted_by_pattern_occurrence[::-1]
+print('Sorting completed!')
+dict_fn = f'{downloads_path}/sorted_by_pattern_occurrence.pkl'
+save_dict_to_pickle(sorted_by_pattern_occurrence, dict_fn)
