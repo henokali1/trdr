@@ -188,6 +188,9 @@ ref_chunks_lst_str = list(tst_chunks_df['ref_chunks'])
 tst_chunks_lst_str = list(tst_chunks_df['tst_chunks'])
 long_qualified_lst = list(tst_chunks_df['long_qualified'])
 ts = list(tst_chunks_df['time'])
+ts = [int(i) for i in ts]
+long = list(tst_chunks_df['long'])
+short = list(tst_chunks_df['short'])
 
 
 
@@ -232,7 +235,7 @@ def chunk_diff(ref_lst, tst_lst):
     sm_lst = []
     tot = len(tst_lst)
     start_ts = int(time())
-    for tst_lst_idx,i in enumerate(tst_lst):
+    for tst_lst_idx,tst_val in enumerate(tst_lst):
         tst_lst_idx += 1
         if(tst_lst_idx%10 == 0) and tst_lst_idx != 0:
             completed = round(tst_lst_idx*100/tot, 1)
@@ -241,16 +244,20 @@ def chunk_diff(ref_lst, tst_lst):
             ts_diff = int(cur_ts - start_ts)
             estimated_tm_to_complete = round(int(ts_diff*(tot-tst_lst_idx)/tst_lst_idx), 1)
             print(f"Elapsed Time: {format_elapsed_time(ts_diff)} \t Completed: {completed}% \tRemaining: {remaining}% \tETA: {format_elapsed_time(estimated_tm_to_complete)}")
-        for ref_idx,j in enumerate(ref_lst):
+        for ref_idx,ref_val in enumerate(ref_lst):
             diff = []
-            if(all_zeros(j)) or (all_zeros(i) or (i == j)):
+            if(all_zeros(ref_val)) or (all_zeros(tst_val) or (tst_val == ref_val)):
                 continue
             else:
                 for k in range(chunk_size):
-                    diff.append(abs(i[k] - j[k]))
+                    diff.append(abs(tst_val[k] - ref_val[k]))
                 cntr += 1
-                sm = sum(diff)
-                sm_lst.append({'ts': ts[ref_idx], 'ref': j, 'tst': i, 'sm': sm})
+                sm = round(sum(diff), 2)
+                if sm <= sm_threshold:
+                    pattern_id = f'{ts[ref_idx]}_{candlestick}_{chunk_size}_{roi_threshold}_{sm_threshold}'
+                    long_roi = long[ref_idx]
+                    short_roi = short[ref_idx]
+                    sm_lst.append({'sm': sm, 'pattern_id': pattern_id, 'long_roi': long_roi, 'short_roi': short_roi, 'ref': ref_val, 'tst': tst_val})
     return sm_lst
 
 def str_to_lst(val):
@@ -270,4 +277,8 @@ for i in tst_chunks_lst_str:
 tst_val_lst = tst_val_lst[:400]
 ref_chunks_lst = [str_to_lst(i) for i in ref_chunks_lst_str]
 chunk_diff_lst = chunk_diff(ref_chunks_lst, tst_val_lst)
+print('Calculating sdbv...')
 sdbv = sort_dicts_by_value(chunk_diff_lst, 'sm')
+
+for i in range(100):
+    print(sdbv[i])
