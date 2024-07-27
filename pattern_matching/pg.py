@@ -5,12 +5,12 @@ import pickle as pickle
 from datetime import datetime
 import pandas as pd
 from pathlib import Path
-from datetime import datetime
 import json
 import math
 import ast
 from time import time
 import pickle
+import logging
 
 
 from typing import List, Dict
@@ -20,8 +20,25 @@ downloads_path = str(Path.home() / "Downloads")
 documents_path = str(Path.home() / "Documents")
 tst_fn = f'{downloads_path}\\hd.csv'
 hd_dl_fn = f'{downloads_path}\\hd_dl.csv'
+log_fn = f'{downloads_path}/tst_ref.log'
 qualifying_trades_fn = f'{downloads_path}\\qualifying_trades.csv'
 
+
+def setup_logger(log_file):
+    # Configure the logger
+    logging.basicConfig(
+        filename=log_file,
+        level=logging.INFO,
+        format='%(asctime)s - %(message)s',
+        datefmt='%d-%m-%Y %H:%M:%S'
+    )
+
+def log_message(message, log_file):
+    # Setup the logger
+    setup_logger(log_file)
+    
+    # Log the message
+    logging.info(message)
 
 def get_client():
     fn = f'{documents_path}\\key\\binance-key.pickle'
@@ -202,7 +219,6 @@ def format_elapsed_time(seconds):
 
 # math.isnan(tst_chunks_lst[110])
 def chunk_diff(ref_lst, tst_lst):
-    cntr = 0
     chunk_size = len(tst_lst[0])
     r = []
     tot = len(tst_lst)
@@ -216,13 +232,13 @@ def chunk_diff(ref_lst, tst_lst):
         avg_short_roi = 0
         avg_sm = 0
         sm_lst = []
-        if(tst_lst_idx%10 == 0) and tst_lst_idx != 0:
+        if ((tst_lst_idx%10 == 0) and (tst_lst_idx != 0)):
             completed = round(tst_lst_idx*100/tot, 1)
             remaining = round(100-completed)
             cur_ts = time()
             ts_diff = int(cur_ts - start_ts)
             estimated_tm_to_complete = round(int(ts_diff*(tot-tst_lst_idx)/tst_lst_idx), 1)
-            print(f"\rElapsed Time: {format_elapsed_time(ts_diff)} \t Completed: {completed}% \tRemaining: {remaining}% \tETA: {format_elapsed_time(estimated_tm_to_complete)}", end="")
+            print(f"\rElapsed Time: {format_elapsed_time(ts_diff)} \t Completed: {completed}% \tRemaining: {remaining}% \tETA: {format_elapsed_time(estimated_tm_to_complete)}                            ", end="")
         for ref_idx,ref_val in enumerate(ref_lst):
             diff = []
             if(all_zeros(ref_val)) or (all_zeros(tst_val) or (tst_val == ref_val)):
@@ -230,11 +246,10 @@ def chunk_diff(ref_lst, tst_lst):
             else:
                 for k in range(chunk_size):
                     diff.append(abs(tst_val[k] - ref_val[k]))
-                cntr += 1
+                    log_message(f'{tst_val}---{ref_val}', log_fn)
                 sm = round(sum(diff), 2)
 
                 if (sm <= sm_threshold) and (long_qualified_lst[ref_idx]):
-                    
                     sm_lst.append(sm)
                     long_rois_lst.append(long[ref_idx])
                     short_rois_lst.append(short[ref_idx])
@@ -301,7 +316,6 @@ short = list(tst_chunks_df['short'])
 
 
 
-# for idx in range(len(long_qualified_lst)):
 
 tst_val_lst = []
 for i in tst_chunks_lst_str:
@@ -309,7 +323,7 @@ for i in tst_chunks_lst_str:
     if type(v) == type([1]):
         tst_val_lst.append(v)
 
-# tst_val_lst = tst_val_lst[:50]
+tst_val_lst = tst_val_lst[:50]
 ref_chunks_lst = [str_to_lst(i) for i in ref_chunks_lst_str]
 
 print('Calculating chunk_diff')
@@ -320,5 +334,5 @@ print('\nSorting by pattern_occurrence...')
 sorted_by_pattern_occurrence = sort_dicts_by_value(chunk_diff_lst, 'pattern_occurrence')
 sorted_by_pattern_occurrence = sorted_by_pattern_occurrence[::-1]
 print('Sorting completed!')
-dict_fn = f'{downloads_path}/sorted_by_pattern_occurrence.pkl'
+dict_fn = f'{downloads_path}/nw_sorted_by_pattern_occurrence.pkl'
 save_dict_to_pickle(sorted_by_pattern_occurrence, dict_fn)
