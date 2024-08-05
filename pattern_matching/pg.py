@@ -2,6 +2,7 @@ import pandas as pd
 from pathlib import Path
 import json
 from time import time
+import pickle
 
 
 
@@ -21,6 +22,10 @@ def get_config(file_path):
 def read_local_hd(fn):
     return pd.read_csv(fn)
 
+def save_dict_to_pickle(dictionary, filename):
+    with open(filename, 'wb') as file:
+        pickle.dump(dictionary, file)
+        print(f'Saved {filename}')
 
 def get_chunks(df):
     lst = list(df['close_pc'])
@@ -136,7 +141,13 @@ def all_zeros(lst):
     return all(x == 0 for x in lst)
 
 def get_percent_dissimilarity(ref_lst_chunk, tst_lst_chunk):
-    percent_dissimilarity = [abs(round((tst_lst_chunk[idx]*100/ref_lst_chunk[idx])-100, 4)) for idx in range(len(ref_lst_chunk))]
+    # percent_dissimilarity = [abs(round((tst_lst_chunk[idx]*100/ref_lst_chunk[idx])-100, 4)) for idx in range(len(ref_lst_chunk))]
+    percent_dissimilarity = []
+    for idx in range(len(ref_lst_chunk)):
+        if ref_lst_chunk[idx] != 0:
+            percent_dissimilarity.append(abs(round((tst_lst_chunk[idx]*100/ref_lst_chunk[idx])-100, 4)))
+        else:
+            percent_dissimilarity.append(9999)
     avg = round(sum(percent_dissimilarity)/len(percent_dissimilarity), 4)
     return avg
 
@@ -174,6 +185,7 @@ def measure_dissimilarity(ref_chunks_lst_dict, tst_chunks_lst_dict):
                 'qualified_tst_ts_lst': qualified_tst_ts_lst,
                 'qualified_avg_dissimilarity_lst': qualified_avg_dissimilarity_lst,
             })
+            save_dict_to_pickle(r, f'{downloads_path}\\r.pkl')
         qualified_tst_ts_lst = []
         qualified_avg_dissimilarity_lst = []
     print('\nExporting dissimilarity.csv')

@@ -1,8 +1,8 @@
 {
     "candlestick": "15m",
     "chunk_size": 10,
-    "roi_threshold": 4,
-    "sm_threshold": 4,
+    "roi_threshold": 1,
+    "sm_threshold": 1,
     "dissimilarity_threshold": 30,
     "min_pattern_occurrence": 2
 }
