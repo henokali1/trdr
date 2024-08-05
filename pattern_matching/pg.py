@@ -1,65 +1,40 @@
-from binance.client import Client
-from binance.enums import *
-from time import time
-import pickle as pickle
-from datetime import datetime
 import pandas as pd
 from pathlib import Path
 import json
-import math
-import ast
 from time import time
-import pickle
-import logging
 
-
-from typing import List, Dict
 
 
 downloads_path = str(Path.home() / "Downloads")
 documents_path = str(Path.home() / "Documents")
-tst_fn = f'{downloads_path}\\hd.csv'
 hd_dl_fn = f'{downloads_path}\\hd_dl.csv'
-log_fn = f'{downloads_path}/tst_ref.log'
 qualifying_trades_fn = f'{downloads_path}\\qualifying_trades.csv'
 
 
-def setup_logger(log_file):
-    # Configure the logger
-    logging.basicConfig(
-        filename=log_file,
-        level=logging.INFO,
-        format='%(asctime)s - %(message)s',
-        datefmt='%d-%m-%Y %H:%M:%S'
-    )
 
-def log_message(message, log_file):
-    # Setup the logger
-    setup_logger(log_file)
-    
-    # Log the message
-    logging.info(message)
-
-def get_client():
-    fn = f'{documents_path}\\key\\binance-key.pickle'
-    with open(fn, 'rb') as handle:
-        k = pickle.load(handle)
-    return Client(k['API_KEY'], k['API_SECRET'])
 
 def get_config(file_path):
     with open(file_path, 'r') as file:
         config = json.load(file)
     return config
 
+def read_local_hd(fn):
+    return pd.read_csv(fn)
 
-def get_chunks(lst, chunk_size):
+
+def get_chunks(df):
+    lst = list(df['close_pc'])
     r=[]
     tot = len(lst)
     for idx, val in enumerate(lst):
-        end_idx = idx+chunk_size
-        if end_idx <= tot:
-            r.append(lst[idx:end_idx])
-    return r
+        if idx < chunk_size:
+            r.append([0]*chunk_size)
+        else:
+            r.append(lst[idx-chunk_size:idx])
+    df['raw_chunks'] = r
+    # df.to_csv(f'{downloads_path}/raw_chunks.csv', index=False)
+    # print('Raw Chunks Exported!', f'{downloads_path}/raw_chunks.csv')
+    return df
 
 def get_pc(hd_df):
     close_price = list(hd_df['close'])
@@ -109,36 +84,6 @@ def get_trades(hd_df, chunk_size):
     short_qualified_df = pd.DataFrame(short_qualified)
     return long_trades_df, short_trades_df, long_qualified, short_qualified
 
-def download_hd(start_timestamp, end_timestamp, candlestick): 
-    client = get_client()
-    data = []
-    tot = (end_timestamp - start_timestamp)/(900*500)
-    cntr = 0
-    for current_sts in range(start_timestamp, end_timestamp+1, 900*500):
-        next_ets = current_sts + 900*500 if (current_sts + 900*500) < end_timestamp else end_timestamp
-        print(current_sts, next_ets, f'100% completed') if next_ets == end_timestamp else print(current_sts, next_ets, f'{round(cntr*100/tot, 1)}% completed')
-        cntr += 1
-        
-        klines = client.futures_historical_klines('BTCUSDT', candlestick, current_sts*1000, next_ets*1000, limit=500)
-        
-        for kline in klines:
-            timestamp = kline[0]/1000
-            open_price = float(kline[1])
-            high_price = float(kline[2])
-            low_price = float(kline[3])
-            close_price = float(kline[4])
-            volume = float(kline[5])
-
-            data.append([timestamp, open_price, high_price, low_price, close_price, volume])
-
-    df = pd.DataFrame(data, columns=['time', 'open', 'high', 'low', 'close', 'volume'])
-    df.to_csv(hd_dl_fn, index=False)
-    print('Historical Data Exported!\t', hd_dl_fn)
-    return df
-
-def read_local_hd(fn):
-    return pd.read_csv(fn)
-
 def get_qualifying_trades(df):
     close_pc_df = get_pc(df)
     long_trades_df, short_trades_df, long_qualified, short_qualified = get_trades(df, chunk_size)
@@ -147,65 +92,36 @@ def get_qualifying_trades(df):
     df['short'] = short_trades_df
     df['long_qualified'] = long_qualified
     df['short_qualified'] = short_qualified
-    df.to_csv(qualifying_trades_fn, index=False)
-    print('Qualifying Trades Data Exported!', qualifying_trades_fn)
-    return df
+    get_chunks(df)
+    # filtered_df = df[(df['long_qualified']) | (df['short_qualified'])]
+    filtered_df = df[(df['long_qualified'])]
+    # filtered_df.to_csv(qualifying_trades_fn, index=False)
+    # print('Qualifying Trades Data Exported!', qualifying_trades_fn)
+    return filtered_df
 
-def get_chunks(qt_df):
-    lst = list(qt_df['close_pc'])
-    r=[]
-    tot = len(lst)
-    for idx, val in enumerate(lst):
-        if idx < chunk_size:
-            r.append([0]*chunk_size)
-        else:
-            r.append(lst[idx-chunk_size:idx])
-    qt_df['ref_chunks'] = r
-    qt_df.to_csv(f'{downloads_path}/ref_chunks.csv', index=False)
-    print('Ref Chunks Exported!', f'{downloads_path}/ref_chunks.csv')
-    return qt_df
+def get_ref_chunks():
+    hd = read_local_hd(hd_dl_fn)
+    qualifying_trades = get_qualifying_trades(hd)
+    ref_chunks_df = pd.DataFrame()
+    ts = list(qualifying_trades['time'])
+    ref_chunks_lst = list(qualifying_trades['raw_chunks'])
+    ref_chunks_df['ts'] = ts
+    ref_chunks_df['ref_chunks'] = ref_chunks_lst
+    ref_chunks_df.to_csv(f'{downloads_path}\\ref_chunks.csv', index=False)
+    print(f'Referance Chunks  Exported! {downloads_path}\\ref_chunks.csv')
+    return ref_chunks_df
 
-def get_tst_chunks(ref_chunks_df):
-    long_qualified = list(ref_chunks_df['long_qualified'])
-    short_qualified = list(ref_chunks_df['short_qualified'])
-    ref_chunks_lst = list(ref_chunks_df['ref_chunks'])
-    r=[]
-    tst_lst = []
-    chunk_diff_lst = []
-    for idx in range(len(long_qualified)):
-        if (idx < chunk_size) or ((long_qualified[idx] == False) and (short_qualified[idx] == False)) :
-            r.append(None)
-            chunk_diff_lst.append(None)
-        else:
-            if (long_qualified[idx] == True) or (short_qualified[idx] == True):
-                r.append(ref_chunks_lst[idx])
-                tst_lst.append(ref_chunks_lst[idx])
-
-    ref_chunks_df['tst_chunks'] = r
-    ref_chunks_df['sm'] = chunk_diff_lst
-    ref_chunks_df.to_csv(f'{downloads_path}/tst_chunks.csv', index=False)
-    print('TST Chunks Exported!', f'{downloads_path}/tst_chunks.csv')
-    return ref_chunks_df, tst_lst
-
-
-
-def sort_dicts_by_value(dicts: List[Dict], key: str) -> List[Dict]:
-    """
-    Sorts a list of dictionaries by the specified key value.
-
-    :param dicts: List of dictionaries to be sorted
-    :param key: The key by which the dictionaries should be sorted
-    :return: A list of dictionaries sorted by the specified key
-    """
-    try:
-        return sorted(dicts, key=lambda x: x[key])
-    except KeyError:
-        raise KeyError(f"One or more dictionaries do not have the key '{key}'")
-    except TypeError:
-        raise TypeError(f"The value for key '{key}' is not comparable")
-
-def all_zeros(lst):
-    return all(x == 0 for x in lst)
+def get_tst_chunks():
+    hd = read_local_hd(hd_dl_fn)
+    close_pc_df = get_pc(hd)
+    hd['close_pc'] = list(close_pc_df['pc'])
+    chunks_df = get_chunks(hd)
+    tst_chunks_df = pd.DataFrame()
+    tst_chunks_df['ts'] = list(chunks_df['time'])
+    tst_chunks_df['tst_chunks'] = list(chunks_df['raw_chunks'])
+    tst_chunks_df.to_csv(f'{downloads_path}\\tst_chunks.csv', index=False)
+    print(f'tst Chunks Exported! {downloads_path}\\tst_chunks.csv')
+    return tst_chunks_df
 
 def format_elapsed_time(seconds):
     days = seconds // (24 * 3600)
@@ -214,125 +130,69 @@ def format_elapsed_time(seconds):
     seconds %= 3600
     minutes = seconds // 60
     seconds %= 60
-
     return f"{days:03}d:{hours:02}h:{minutes:02}m:{seconds:02}s"
 
-# math.isnan(tst_chunks_lst[110])
-def chunk_diff(ref_lst, tst_lst):
-    chunk_size = len(tst_lst[0])
-    r = []
-    tot = len(tst_lst)
-    start_ts = int(time())
-    for tst_lst_idx,tst_val in enumerate(tst_lst):
-        tst_lst_idx += 1
-        pattern_occurrence = 0
-        long_rois_lst = []
-        short_rois_lst = []
-        avg_long_roi = 0
-        avg_short_roi = 0
-        avg_sm = 0
-        sm_lst = []
-        if ((tst_lst_idx%10 == 0) and (tst_lst_idx != 0)):
-            completed = round(tst_lst_idx*100/tot, 1)
+def all_zeros(lst):
+    return all(x == 0 for x in lst)
+
+def get_percent_dissimilarity(ref_lst_chunk, tst_lst_chunk):
+    percent_dissimilarity = [abs(round((tst_lst_chunk[idx]*100/ref_lst_chunk[idx])-100, 4)) for idx in range(len(ref_lst_chunk))]
+    avg = round(sum(percent_dissimilarity)/len(percent_dissimilarity), 4)
+    return avg
+
+def measure_dissimilarity(ref_chunks_lst_dict, tst_chunks_lst_dict):
+    r= []
+    qualified_tst_ts_lst = []
+    qualified_avg_dissimilarity_lst = []
+    start_ts = time()
+    tot = len(ref_chunks_lst_dict)
+    for ref_idx, ref_val in enumerate(ref_chunks_lst_dict):
+        # if(ref_idx%10 == 0) and ref_idx != 0:
+        if ref_idx != 0:
+            completed = round(ref_idx*100/tot, 1)
             remaining = round(100-completed)
             cur_ts = time()
             ts_diff = int(cur_ts - start_ts)
-            estimated_tm_to_complete = round(int(ts_diff*(tot-tst_lst_idx)/tst_lst_idx), 1)
-            print(f"\rElapsed Time: {format_elapsed_time(ts_diff)} \t Completed: {completed}% \tRemaining: {remaining}% \tETA: {format_elapsed_time(estimated_tm_to_complete)}                            ", end="")
-        for ref_idx,ref_val in enumerate(ref_lst):
-            diff = []
-            if(all_zeros(ref_val)) or (all_zeros(tst_val) or (tst_val == ref_val)):
+            estimated_tm_to_complete = round(int(ts_diff*(tot-ref_idx)/ref_idx), 1)
+            print(f"\rElapsed Time: {format_elapsed_time(ts_diff)} \t Completed: {completed}% \tRemaining: {remaining}% \tETA: {format_elapsed_time(estimated_tm_to_complete)}                               ", end="")
+        for tst_idx, tst_val in enumerate(tst_chunks_lst_dict):
+            if ((all_zeros(ref_val['ref_chunks'])) or (all_zeros(tst_val['tst_chunks'])) or (tst_val['tst_chunks'] == ref_val['ref_chunks'])):
                 continue
             else:
-                for k in range(chunk_size):
-                    diff.append(abs(tst_val[k] - ref_val[k]))
-                    log_message(f'{tst_val}---{ref_val}', log_fn)
-                sm = round(sum(diff), 2)
+                avg_dissimilarity = get_percent_dissimilarity(ref_val['ref_chunks'], tst_val['tst_chunks'])
+                if avg_dissimilarity <= dissimilarity_threshold:
+                    qualified_tst_ts_lst.append(tst_val['ts'])
+                    qualified_avg_dissimilarity_lst.append(avg_dissimilarity)
 
-                if (sm <= sm_threshold) and (long_qualified_lst[ref_idx]):
-                    sm_lst.append(sm)
-                    long_rois_lst.append(long[ref_idx])
-                    short_rois_lst.append(short[ref_idx])
-                    pattern_occurrence += 1
-                    # sm_lst.append({'sm': sm, 'pattern_id': pattern_id, 'long_roi': long_roi, 'short_roi': short_roi, 'ref': ref_val, 'tst': tst_val})
-        if pattern_occurrence > 0:
-            pattern_id = f'{ts[tst_lst_idx]}_{candlestick}_{chunk_size}_{roi_threshold}_{sm_threshold}'
-            avg_sm = round(sum(sm_lst)/len(sm_lst), 2)
-            avg_long_roi = round(sum(long_rois_lst)/len(long_rois_lst), 2)
-            avg_short_roi = round(sum(short_rois_lst)/len(short_rois_lst), 2)
-            r.append({'avg_sm': avg_sm, 'pattern_occurrence': pattern_occurrence, 'pattern_id': pattern_id, 'avg_long_roi': avg_long_roi, 'avg_short_roi': avg_short_roi, 'ref': ref_val, 'tst_chunk': tst_val})
-    return r
-
-def str_to_lst(val):
-    try:
-        return ast.literal_eval(val)
-    except ValueError as e:
-        return math.isnan(val)
-
-def save_dict_to_pickle(dictionary, filename):
-    with open(filename, 'wb') as file:
-        pickle.dump(dictionary, file)
-        print(f'Saved {filename}')
-
-def load_dict_from_pickle(filename):
-    with open(filename, 'rb') as file:
-        dictionary = pickle.load(file)
-    print(f'Reading {filename}')
-    return dictionary
-
-
-
+        pattern_occurrence = len(qualified_avg_dissimilarity_lst)
+        if pattern_occurrence >= min_pattern_occurrence:
+            avg_avg_dissimilarity = round(sum(qualified_avg_dissimilarity_lst)/pattern_occurrence, 4)
+            r.append({
+                'avg_avg_dissimilarity': avg_avg_dissimilarity,
+                'pattern_occurrence': pattern_occurrence,
+                'ref_ts': ref_val['ts'],
+                'qualified_tst_ts_lst': qualified_tst_ts_lst,
+                'qualified_avg_dissimilarity_lst': qualified_avg_dissimilarity_lst,
+            })
+        qualified_tst_ts_lst = []
+        qualified_avg_dissimilarity_lst = []
+    print('\nExporting dissimilarity.csv')
+    dissimilarity_df = pd.DataFrame(r)
+    dissimilarity_df.to_csv(f'{downloads_path}\\dissimilarity.csv', index=False)
+    print('dissimilarity.csv Exported!')
+    return dissimilarity_df
 
 config = get_config('config.json')
 candlestick = config['candlestick']
 chunk_size = config['chunk_size']
 roi_threshold = config['roi_threshold']
 sm_threshold = config['sm_threshold']
+min_pattern_occurrence = config['min_pattern_occurrence']
+dissimilarity_threshold = config['dissimilarity_threshold']
 
-start_timestamp = 1609459200 #  January 1, 2021 12:00:00 AM
-end_timestamp = 1719721304
+ref_chunks_df = get_ref_chunks()
+ref_chunks_lst_dict = ref_chunks_df.to_dict(orient='records')
+tst_chunks_df = get_tst_chunks()
+tst_chunks_lst_dict = tst_chunks_df.to_dict(orient='records')
 
-# ref_chunks = get_chunks(pc_ref)
-# tst_chunks = get_chunks(pc_tst)
-# hd = read_local_hd(hd_dl_fn)
-# qt_df = get_qualifying_trades(hd)
-
-# ref_chunks_df = get_chunks(qt_df)
-# tst_chunks_df, tst_lst = get_tst_chunks(ref_chunks_df)
-
-print('Reading tst_chunks.csv')
-tst_chunks_df = pd.read_csv(f'{downloads_path}/tst_chunks.csv')
-close_price_lst = list(tst_chunks_df['close'])
-high_price_lst = list(tst_chunks_df['high'])
-ref_chunks_lst_str = list(tst_chunks_df['ref_chunks'])
-tst_chunks_lst_str = list(tst_chunks_df['tst_chunks'])
-long_qualified_lst = list(tst_chunks_df['long_qualified'])
-ts = list(tst_chunks_df['time'])
-ts = [int(i) for i in ts]
-long = list(tst_chunks_df['long'])
-short = list(tst_chunks_df['short'])
-
-# -------------------------------------------------------------------------------------------
-
-
-
-
-tst_val_lst = []
-for i in tst_chunks_lst_str:
-    v = str_to_lst(i)
-    if type(v) == type([1]):
-        tst_val_lst.append(v)
-
-tst_val_lst = tst_val_lst[:50]
-ref_chunks_lst = [str_to_lst(i) for i in ref_chunks_lst_str]
-
-print('Calculating chunk_diff')
-chunk_diff_lst = chunk_diff(ref_chunks_lst, tst_val_lst)
-# print('Sorting by avg_sm...')
-# sorted_by_avg_sm = sort_dicts_by_value(chunk_diff_lst, 'avg_sm')
-print('\nSorting by pattern_occurrence...')
-sorted_by_pattern_occurrence = sort_dicts_by_value(chunk_diff_lst, 'pattern_occurrence')
-sorted_by_pattern_occurrence = sorted_by_pattern_occurrence[::-1]
-print('Sorting completed!')
-dict_fn = f'{downloads_path}/nw_sorted_by_pattern_occurrence.pkl'
-save_dict_to_pickle(sorted_by_pattern_occurrence, dict_fn)
+dissimilarity = measure_dissimilarity(ref_chunks_lst_dict, tst_chunks_lst_dict)

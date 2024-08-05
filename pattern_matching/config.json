@@ -3,5 +3,6 @@
     "chunk_size": 10,
     "roi_threshold": 4,
     "sm_threshold": 1,
-    "min_pattern_occurrence": 10
+    "dissimilarity_threshold": 10,
+    "min_pattern_occurrence": 2
 }
