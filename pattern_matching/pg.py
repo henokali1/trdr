@@ -98,8 +98,8 @@ def get_qualifying_trades(df):
     df['long_qualified'] = long_qualified
     df['short_qualified'] = short_qualified
     get_chunks(df)
-    # filtered_df = df[(df['long_qualified']) | (df['short_qualified'])]
-    filtered_df = df[(df['long_qualified'])]
+    filtered_df = df[(df['long_qualified']) | (df['short_qualified'])]
+    # filtered_df = df[(df['long_qualified'])]
     # filtered_df.to_csv(qualifying_trades_fn, index=False)
     # print('Qualifying Trades Data Exported!', qualifying_trades_fn)
     return filtered_df
@@ -110,8 +110,12 @@ def get_ref_chunks():
     ref_chunks_df = pd.DataFrame()
     ts = list(qualifying_trades['time'])
     ref_chunks_lst = list(qualifying_trades['raw_chunks'])
+    long_qualified = list(qualifying_trades['long_qualified'])
+    short_qualified = list(qualifying_trades['short_qualified'])
     ref_chunks_df['ts'] = ts
     ref_chunks_df['ref_chunks'] = ref_chunks_lst
+    ref_chunks_df['long_qualified'] = long_qualified
+    ref_chunks_df['short_qualified'] = short_qualified
     ref_chunks_df.to_csv(f'{downloads_path}\\ref_chunks.csv', index=False)
     print(f'Referance Chunks  Exported! {downloads_path}\\ref_chunks.csv')
     return ref_chunks_df
@@ -141,7 +145,6 @@ def all_zeros(lst):
     return all(x == 0 for x in lst)
 
 def get_percent_dissimilarity(ref_lst_chunk, tst_lst_chunk):
-    # percent_dissimilarity = [abs(round((tst_lst_chunk[idx]*100/ref_lst_chunk[idx])-100, 4)) for idx in range(len(ref_lst_chunk))]
     percent_dissimilarity = []
     for idx in range(len(ref_lst_chunk)):
         if ref_lst_chunk[idx] != 0:
