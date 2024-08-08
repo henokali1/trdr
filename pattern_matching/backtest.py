@@ -241,6 +241,6 @@ tst_chunks_df = get_tst_chunks()
 tst_chunks_lst_dict = tst_chunks_df.to_dict(orient='records')
 
 raw_ref = load_dict_from_pickle(f'{downloads_path}/r.pkl')
-refs = format_ref(raw_ref)[7:30]
+refs = format_ref(raw_ref)
 
 dissimilarity = measure_dissimilarity(refs, tst_chunks_lst_dict)
